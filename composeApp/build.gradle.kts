@@ -24,6 +24,18 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
+
+            // Add the framework exports here
+            // Use linkerOpts to link against iOS system frameworks
+            linkerOpts.addAll(listOf(
+                "-framework", "UIKit",
+                "-framework", "Foundation",
+                "-framework", "CoreGraphics",
+                "-framework", "CoreImage",
+                "-framework", "CoreVideo",
+                "-framework", "Vision",
+                "-framework", "ImageIO"
+            ))
         }
     }
     
@@ -51,6 +63,7 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.kotlinx.coroutines.core)
+//            implementation("org.jetbrains.skiko:skiko:0.9.30")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
