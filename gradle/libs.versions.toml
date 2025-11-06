@@ -17,6 +17,12 @@ kotlinx-coroutines = "1.10.2"
 onnx = "1.23.2"
 subject-segmentation= "16.0.0-beta1"
 segmentationSelfie = "16.0.0-beta6"
+coil = "3.3.0"
+ktor = "3.3.1"
+navigation = "2.9.1"
+serialization-json = "1.9.0"
+serialization = "2.2.21"
+fluentui-icons = "1.0.1"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -32,9 +38,25 @@ androidx-lifecycle-runtimeCompose = { module = "org.jetbrains.androidx.lifecycle
 kotlinx-coroutinesSwing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "kotlinx-coroutines"}
+#ONNX
 onnxruntime = { module = "com.microsoft.onnxruntime:onnxruntime", version.ref = "onnx" }
+#MLKit
 mlkit-subject-segmentation = { module = "com.google.android.gms:play-services-mlkit-subject-segmentation", version.ref = "subject-segmentation"}
 segmentation-selfie = { group = "com.google.mlkit", name = "segmentation-selfie", version.ref = "segmentationSelfie" }
+#coil
+coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose" , version.ref = "coil" }
+coil-network-ktor3 = { group = "io.coil-kt.coil3", name = "coil-network-ktor3" , version.ref = "coil" }
+#ktor
+ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor"}
+ktor-client-android = { group = "io.ktor", name = "ktor-client-android", version.ref = "ktor"}
+ktor-client-darwin = { group = "io.ktor", name = "ktor-client-darwin", version.ref = "ktor"}
+ktor-client-java = { group = "io.ktor", name = "ktor-client-java", version.ref = "ktor"}
+#Navigation
+navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigation" }
+#serialization
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization-json" }
+#icons
+fluentui-system-icons = { module = "io.github.niyajali:fluentui-system-icons", version.ref = "fluentui-icons" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -43,3 +65,4 @@ composeHotReload = { id = "org.jetbrains.compose.hot-reload", version.ref = "com
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+seralization = {id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "serialization" }

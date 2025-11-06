@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.bhaskar.pixelwalls.presentation.main.HomeScreen
 import com.bhaskar.pixelwalls.presentation.test.SimpleTestScreen
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -48,6 +49,6 @@ fun App() {
 //        }
 //    }
 
-        SimpleTestScreen()
+        HomeScreen()
     }
 }
