@@ -16,8 +16,12 @@ import androidx.navigation.compose.rememberNavController
 import com.bhaskar.pixelwalls.presentation.ai.AIScreen
 import com.bhaskar.pixelwalls.presentation.creations.CreationsScreen
 import com.bhaskar.pixelwalls.presentation.editor.EditorScreen
+import com.bhaskar.pixelwalls.presentation.editor.EditorScreenViewModel
+import com.bhaskar.pixelwalls.presentation.editor.EditorState
+import com.bhaskar.pixelwalls.presentation.editor.EditorUiEvents
 import com.bhaskar.pixelwalls.utils.navigationComps.BottomNavItem
-import com.bhaskar.pixelwalls.utils.navigationComps.SurfaceDestinationRoutes
+import com.bhaskar.pixelwalls.utils.navigationComps.RootNavGraph
+import com.bhaskar.pixelwalls.utils.navigationComps.BottomNavGraph
 import fluent.ui.system.icons.FluentIcons
 import fluent.ui.system.icons.filled.Edit
 import fluent.ui.system.icons.filled.Folder
@@ -25,9 +29,15 @@ import fluent.ui.system.icons.filled.Image
 import fluent.ui.system.icons.regular.Edit
 import fluent.ui.system.icons.regular.Folder
 import fluent.ui.system.icons.regular.Image
+import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun HomeScreen(){
+fun MainScreen(
+    rootNavController: NavHostController,
+    editorState: EditorState,
+    editorUiEvents: (EditorUiEvents) -> Unit
+){
 
     val selectedItem = rememberSaveable {
         mutableIntStateOf(0)
@@ -43,31 +53,43 @@ fun HomeScreen(){
             )
         },
         content = {
-            BottomNavScreen(
-                bottomNavController = bottomNavController
+            BottomNavHost(
+                bottomNavController = bottomNavController,
+                rootNavController = rootNavController,
+                state = editorState,
+                onEvents = editorUiEvents
             )
         }
     )
 }
 
 @Composable
-fun BottomNavScreen(
-    bottomNavController: NavHostController
-){
+fun BottomNavHost(
+    bottomNavController: NavHostController,
+    rootNavController: NavHostController,
+    onEvents: (EditorUiEvents) -> Unit,
+    state: EditorState
+) {
 
     NavHost(
         navController = bottomNavController,
-        startDestination = SurfaceDestinationRoutes.EditorScreen
+        startDestination = BottomNavGraph.EditorScreen
     ) {
-        composable<SurfaceDestinationRoutes.EditorScreen>() {
-            EditorScreen()
+        composable<BottomNavGraph.EditorScreen>() {
+            EditorScreen(
+                onImagePicked = { imageUri ->
+                    rootNavController.navigate(RootNavGraph.FullScreenEditorScreen(imageUri))
+                },
+                state = state,
+                onEvent = onEvents
+            )
         }
 
-        composable<SurfaceDestinationRoutes.AIScreen>() {
+        composable<BottomNavGraph.AIScreen>() {
             AIScreen()
         }
 
-        composable<SurfaceDestinationRoutes.CreationsScreen>() {
+        composable<BottomNavGraph.CreationsScreen>() {
             CreationsScreen()
         }
     }
@@ -105,9 +127,9 @@ fun BottomNavBar(
                 onClick = {
                     selectedItem.intValue = index
                     when(index) {
-                        0 -> bottomNavController.navigate(SurfaceDestinationRoutes.EditorScreen)
-                        1 -> bottomNavController.navigate(SurfaceDestinationRoutes.AIScreen)
-                        2 -> bottomNavController.navigate(SurfaceDestinationRoutes.CreationsScreen)
+                        0 -> bottomNavController.navigate(BottomNavGraph.EditorScreen)
+                        1 -> bottomNavController.navigate(BottomNavGraph.AIScreen)
+                        2 -> bottomNavController.navigate(BottomNavGraph.CreationsScreen)
                     }
                 },
                 icon = {

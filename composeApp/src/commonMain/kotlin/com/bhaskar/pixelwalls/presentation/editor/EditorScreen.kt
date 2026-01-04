@@ -5,11 +5,24 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import coil3.Uri
+import coil3.toUri
+import io.github.vinceglb.filekit.dialogs.FileKitType
+import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
+import io.github.vinceglb.filekit.path
+import io.github.vinceglb.filekit.readBytes
+import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 
 @Composable
-fun EditorScreen() {
+fun EditorScreen(
+    onImagePicked: (String) -> Unit,
+    state: EditorState,
+    onEvent: (EditorUiEvents) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -85,11 +98,26 @@ fun EditorScreen() {
         Spacer(modifier = Modifier.height(48.dp))
 
         // Pick Image Button
+
+        val scope = rememberCoroutineScope()
+        val filePicker = rememberFilePickerLauncher(
+            type = FileKitType.Image,
+            onResult = { file ->
+//                file?.path?.let { onImagePicked(it) }
+                scope.launch {
+                    val imageBytes = file?.readBytes()
+                    if(imageBytes != null) {
+                        onEvent(EditorUiEvents.OnImageSelect(imageBytes))
+                        onImagePicked(file.path)
+                    }
+                }
+            }
+        )
+
         Button(
             onClick = {
                 // TODO: Open image picker, then navigate
-                // For now, navigate with placeholder
-//                navController.navigate(Screen.FullEditor.createRoute("placeholder"))
+                filePicker.launch()
             },
             modifier = Modifier
                 .fillMaxWidth()

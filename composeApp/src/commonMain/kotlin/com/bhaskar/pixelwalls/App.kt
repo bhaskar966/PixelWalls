@@ -1,29 +1,18 @@
 package com.bhaskar.pixelwalls
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import com.bhaskar.pixelwalls.presentation.main.HomeScreen
+import com.bhaskar.pixelwalls.di.initKoin
+import com.bhaskar.pixelwalls.presentation.main.AppNavigation
+import com.bhaskar.pixelwalls.presentation.main.MainScreen
 import com.bhaskar.pixelwalls.presentation.test.SimpleTestScreen
-import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
-import pixelwalls.composeapp.generated.resources.Res
-import pixelwalls.composeapp.generated.resources.compose_multiplatform
+//import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
-@Preview
+//@Preview
 fun App() {
+//    initKoin()
     MaterialTheme {
 //        var showContent by remember { mutableStateOf(false) }
 //        Column(
@@ -49,6 +38,7 @@ fun App() {
 //        }
 //    }
 
-        HomeScreen()
+        AppNavigation()
+//        SimpleTestScreen()
     }
 }

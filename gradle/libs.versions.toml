@@ -9,12 +9,16 @@ androidx-core = "1.17.0"
 androidx-espresso = "3.7.0"
 androidx-lifecycle = "2.9.5"
 androidx-testExt = "1.3.0"
+componentsResources = "1.10.0-beta01"
 composeHotReload = "1.0.0-rc02"
-composeMultiplatform = "1.9.2"
+composeMultiplatform = "1.10.0-beta01"
+foundation = "1.10.0-beta01"
 junit = "4.13.2"
 kotlin = "2.2.21"
 kotlinx-coroutines = "1.10.2"
+material3 = "1.10.0-alpha04"
 onnx = "1.23.2"
+runtime = "1.10.0-beta01"
 subject-segmentation= "16.0.0-beta1"
 segmentationSelfie = "16.0.0-beta6"
 coil = "3.3.0"
@@ -23,8 +27,16 @@ navigation = "2.9.1"
 serialization-json = "1.9.0"
 serialization = "2.2.21"
 fluentui-icons = "1.0.1"
+filekit = "0.12.0"
+koin-bom = "4.1.1"
+ui = "1.10.0-beta01"
+uiTooling = "1.10.0-beta01"
+uiToolingPreviewVersion = "1.10.0-beta01"
 
 [libraries]
+components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "componentsResources" }
+foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "foundation" }
+jetbrains-ui-tooling-preview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "uiToolingPreviewVersion" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 junit = { module = "junit:junit", version.ref = "junit" }
@@ -38,10 +50,14 @@ androidx-lifecycle-runtimeCompose = { module = "org.jetbrains.androidx.lifecycle
 kotlinx-coroutinesSwing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "kotlinx-coroutines"}
+ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "ui" }
+ui-tooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "uiTooling" }
 #ONNX
+material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "material3" }
 onnxruntime = { module = "com.microsoft.onnxruntime:onnxruntime", version.ref = "onnx" }
 #MLKit
 mlkit-subject-segmentation = { module = "com.google.android.gms:play-services-mlkit-subject-segmentation", version.ref = "subject-segmentation"}
+runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "runtime" }
 segmentation-selfie = { group = "com.google.mlkit", name = "segmentation-selfie", version.ref = "segmentationSelfie" }
 #coil
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose" , version.ref = "coil" }
@@ -57,6 +73,15 @@ navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-co
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization-json" }
 #icons
 fluentui-system-icons = { module = "io.github.niyajali:fluentui-system-icons", version.ref = "fluentui-icons" }
+#fileKit
+filekit-core = { group = "io.github.vinceglb", name = "filekit-core", version.ref = "filekit"}
+filekit-dialogs = { group = "io.github.vinceglb", name = "filekit-dialogs", version.ref = "filekit"}
+filekit-dialogs-compose = { group = "io.github.vinceglb", name = "filekit-dialogs-compose", version.ref = "filekit"}
+filekit-coil = { group = "io.github.vinceglb", name = "filekit-coil", version.ref = "filekit"}
+koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin-bom" }
+koin-core = { module = "io.insert-koin:koin-core" }
+koin-compose = { module = "io.insert-koin:koin-compose" }
+koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
