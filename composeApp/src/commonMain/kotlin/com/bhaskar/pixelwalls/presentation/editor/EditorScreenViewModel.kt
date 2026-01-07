@@ -6,20 +6,16 @@ import androidx.lifecycle.viewModelScope
 import com.bhaskar.pixelwalls.backgroundremoval.BackgroundRemover
 import com.bhaskar.pixelwalls.domain.model.ProcessedImage
 import com.bhaskar.pixelwalls.utils.cache.ImageCache
-import com.bhaskar.pixelwalls.utils.editor.toImageBitmap
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okio.FileSystem
-import okio.Path.Companion.toPath
-import kotlin.random.Random
 import kotlin.time.Clock
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.ExperimentalTime
 
 class EditorScreenViewModel(
     private val backgroundRemover: BackgroundRemover,
-    private val fileSystem: FileSystem,
     private val imageCache: ImageCache
 ): ViewModel() {
 
@@ -30,6 +26,31 @@ class EditorScreenViewModel(
         when(event) {
             is EditorUiEvents.OnImageSelect -> {
                 processAndCacheImage(imageBytes = event.imageBytes)
+            }
+            is EditorUiEvents.OnScaleChange -> {
+                _editorUiState.update { it.copy(scale = event.scale) }
+            }
+            is EditorUiEvents.OnOffsetChange -> {
+                _editorUiState.update {
+                    it.copy(offsetX = event.offsetX, offsetY = event.offsetY)
+                }
+            }
+            is EditorUiEvents.OnShapeRadiusChange -> {
+                _editorUiState.update { it.copy(shapeRadiusPercent = event.percent) }
+            }
+            is EditorUiEvents.OnClipHeightChange -> {
+                _editorUiState.update { it.copy(clipHeightPercent = event.percent) }
+            }
+            is EditorUiEvents.OnHollowYChange -> {
+                _editorUiState.update { it.copy(hollowCenterYPercent = event.percent.coerceIn(0f, 1f)) }
+            }
+
+            is EditorUiEvents.OnBgColorChange -> {
+                _editorUiState.update { it.copy(bgColor = event.color) }
+            }
+
+            is EditorUiEvents.OnShapeChange -> {
+                _editorUiState.update { it.copy(shape = event.shape) }
             }
         }
     }
@@ -57,7 +78,8 @@ class EditorScreenViewModel(
                         _editorUiState.value = EditorState(
                             originalImageUri = originalPath,
                             subjectImageUri = subjectPath,
-                            subjectBounds = processedImage.toRelativeRect(),
+                            imageWidth = processedImage.width,
+                            imageHeight = processedImage.height,
                             isLoading = false
                         )
                     },
@@ -78,51 +100,51 @@ class EditorScreenViewModel(
         }
     }
 
-    @OptIn(ExperimentalTime::class)
-    private fun loadImage(imageUri: String) {
-
-        viewModelScope.launch {
-            _editorUiState.value = EditorState(isLoading = true)
-
-            try {
-
-                val imageBytes = fileSystem.read(imageUri.toPath()) {
-                    readByteArray()
-                }
-
-                val result = backgroundRemover.removeBackground(imageBytes)
-
-                result.fold(
-                    onSuccess = { processedImage ->
-
-                        val fileName = "processed_${Random.nextLong()}.png"
-                        val resultUri = imageCache.saveImageToCache(processedImage.imageBytes, fileName)
-
-                        _editorUiState.value = EditorState(
-                            originalImageUri = imageUri, // The full original image
-                            subjectImageUri = resultUri, // The foreground-only image
-                            subjectBounds = processedImage.toRelativeRect(), // Calculate the relative bounds
-                            isLoading = false
-                        )
-                    },
-                    onFailure = { error ->
-                        _editorUiState.value = EditorState(
-                            isLoading = false,
-                            error = "Background removal failed: ${error.message}"
-                        )
-                    }
-                )
-
-            } catch (e: Exception) {
-                _editorUiState.value = EditorState(
-                    isLoading = false,
-                    error = "Failed to load image: ${e.message}"
-                )
-            }
-
-        }
-
-    }
+//    @OptIn(ExperimentalTime::class)
+//    private fun loadImage(imageUri: String) {
+//
+//        viewModelScope.launch {
+//            _editorUiState.value = EditorState(isLoading = true)
+//
+//            try {
+//
+//                val imageBytes = fileSystem.read(imageUri.toPath()) {
+//                    readByteArray()
+//                }
+//
+//                val result = backgroundRemover.removeBackground(imageBytes)
+//
+//                result.fold(
+//                    onSuccess = { processedImage ->
+//
+//                        val fileName = "processed_${Random.nextLong()}.png"
+//                        val resultUri = imageCache.saveImageToCache(processedImage.imageBytes, fileName)
+//
+//                        _editorUiState.value = EditorState(
+//                            originalImageUri = imageUri, // The full original image
+//                            subjectImageUri = resultUri, // The foreground-only image
+//                            subjectBounds = processedImage.toRelativeRect(), // Calculate the relative bounds
+//                            isLoading = false
+//                        )
+//                    },
+//                    onFailure = { error ->
+//                        _editorUiState.value = EditorState(
+//                            isLoading = false,
+//                            error = "Background removal failed: ${error.message}"
+//                        )
+//                    }
+//                )
+//
+//            } catch (e: Exception) {
+//                _editorUiState.value = EditorState(
+//                    isLoading = false,
+//                    error = "Failed to load image: ${e.message}"
+//                )
+//            }
+//
+//        }
+//
+//    }
 
     private fun ProcessedImage.toRelativeRect(): Rect {
 

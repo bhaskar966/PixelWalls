@@ -21,7 +21,6 @@ fun AppNavigation() {
     val editorUiEvents = editorViewModel::onEvent
 
 
-
     NavHost(
         navController = rootNavController,
         startDestination = RootNavGraph.MainScreen
@@ -41,10 +40,10 @@ fun AppNavigation() {
             FullScreenEditor(
                 imageUri = navBackStackEntry.toRoute<RootNavGraph.FullScreenEditorScreen>().imageUri,
                 navController = rootNavController,
-                state = state
+                state = state,
+                onEvent = editorUiEvents
             )
         }
-
 
     }
 

@@ -1,12 +1,23 @@
 package com.bhaskar.pixelwalls.presentation.editor
 
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Color
 
 data class EditorState(
+    val isLoading: Boolean = false,
     val originalImageUri: String? = null,
     val subjectImageUri: String? = null,
-    val subjectBounds: Rect = Rect.Zero,
-    val isLoading: Boolean = false,
-    val error: String? = null
+    val imageWidth: Int = 0,
+    val imageHeight: Int = 0,
+    val error: String? = null,
+
+    // Manual control states
+    val scale: Float = 1f,
+    val offsetX: Float = 0f,
+    val offsetY: Float = 0f,
+    val shapeRadiusPercent: Float = 0.5f,
+    val clipHeightPercent: Float = 0.7f,
+    val hollowCenterYPercent: Float = 0.3f,
+
+    val bgColor: Color = Color(0xFFE6B34A),
+    val shape: String = "Circle"
 )

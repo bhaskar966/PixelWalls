@@ -15,11 +15,9 @@ expect val platformModule: Module
 val appModule = module {
     includes(platformModule)
     single<BackgroundRemover> { createBackgroundRemover() }
-    single { FileSystem.SYSTEM }
     viewModel {
         EditorScreenViewModel(
             backgroundRemover = get(),
-            fileSystem = get(),
             imageCache = get()
         )
     }
