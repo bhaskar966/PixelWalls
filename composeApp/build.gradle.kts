@@ -101,6 +101,9 @@ kotlin {
             implementation(libs.onnxruntime)
             //Ktor
             implementation(libs.ktor.client.java)
+            //JNA
+            implementation("net.java.dev.jna:jna:5.18.1")
+            implementation("net.java.dev.jna:jna-platform:5.18.1")
         }
         iosMain.dependencies {
             //ktor

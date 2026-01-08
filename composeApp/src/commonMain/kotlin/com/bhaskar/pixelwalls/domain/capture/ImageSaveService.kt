@@ -18,6 +18,8 @@ interface ImageSaveService {
         fileName: String,
         imageBytes: ByteArray
     ): Result<Unit>
+
+    val isShareSupported: Boolean
 }
 
 enum class ImageFormat(val extension: String, val mimeType: String) {

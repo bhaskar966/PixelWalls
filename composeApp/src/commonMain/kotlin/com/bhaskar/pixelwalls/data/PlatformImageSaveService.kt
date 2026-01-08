@@ -19,4 +19,6 @@ expect class PlatformImageSaveService: ImageSaveService {
         fileName: String,
         imageBytes: ByteArray
     ): Result<Unit>
+
+    override val isShareSupported: Boolean
 }

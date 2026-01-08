@@ -21,6 +21,9 @@ import platform.UIKit.UIImage
 import kotlin.coroutines.resume
 
 actual class PlatformImageSaveService : ImageSaveService {
+
+    actual override val isShareSupported: Boolean = true
+
     actual override suspend fun saveToGallery(
         fileName: String,
         imageBytes: ByteArray,

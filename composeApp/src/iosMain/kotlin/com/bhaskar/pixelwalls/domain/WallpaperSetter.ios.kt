@@ -1,0 +1,86 @@
+package com.bhaskar.pixelwalls.domain
+
+import kotlinx.cinterop.BetaInteropApi
+import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.addressOf
+import kotlinx.cinterop.usePinned
+import kotlinx.coroutines.suspendCancellableCoroutine
+import platform.Foundation.NSData
+import platform.Foundation.create
+import platform.Photos.PHAssetChangeRequest
+import platform.Photos.PHAuthorizationStatusAuthorized
+import platform.Photos.PHPhotoLibrary
+import platform.UIKit.UIImage
+import kotlin.coroutines.resume
+
+actual class PlatformWallpaperSetter : WallpaperSetter {
+    actual override suspend fun setWallpaper(
+        imageBytes: ByteArray,
+        target: WallpaperTarget
+    ): WallpaperSetResult {
+        return saveToPhotosAndProvideInstructions(imageBytes)
+    }
+
+    actual override fun canSetWallpaperDirectly(): Boolean = false
+
+    actual override suspend fun openWallpaperPicker(imageBytes: ByteArray): WallpaperSetResult {
+        return saveToPhotosAndProvideInstructions(imageBytes)
+    }
+
+    private suspend fun saveToPhotosAndProvideInstructions(
+        imageBytes: ByteArray
+    ): WallpaperSetResult = suspendCancellableCoroutine { cont ->
+
+        val image = createUIImage(imageBytes)
+            ?: return@suspendCancellableCoroutine cont.resume(
+                WallpaperSetResult.Error("Failed to create image")
+            )
+
+        PHPhotoLibrary.requestAuthorization { status ->
+            if (status != PHAuthorizationStatusAuthorized) {
+                cont.resume(
+                    WallpaperSetResult.Error("Photo library access denied")
+                )
+                return@requestAuthorization
+            }
+
+            // Save to Photos
+            PHPhotoLibrary.sharedPhotoLibrary().performChanges({
+                PHAssetChangeRequest.creationRequestForAssetFromImage(image)
+            }) { success, error ->
+                if (success) {
+                    val instructions = """
+                        Image saved to Photos!
+                        
+                        To set as wallpaper:
+                        1. Open Photos app
+                        2. Find the saved image
+                        3. Tap Share button
+                        4. Select "Use as Wallpaper"
+                        5. Adjust position and tap "Set"
+                    """.trimIndent()
+
+                    cont.resume(WallpaperSetResult.UserActionRequired(instructions))
+                } else {
+                    cont.resume(
+                        WallpaperSetResult.Error(
+                            error?.localizedDescription ?: "Failed to save"
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
+    private fun createUIImage(bytes: ByteArray): UIImage? {
+        val data = bytes.usePinned { pinned ->
+            NSData.create(
+                bytes = pinned.addressOf(0),
+                length = bytes.size.toULong()
+            )
+        }
+        return UIImage.imageWithData(data)
+    }
+
+}

@@ -67,7 +67,7 @@ class EditorScreenViewModel(
     @OptIn(ExperimentalTime::class)
     private fun processAndCacheImage(imageBytes: ByteArray) {
         viewModelScope.launch {
-            _editorUiState.value = EditorState(isLoading = true)
+            _editorUiState.value = EditorState(isLoading = true, originalBitmap = null)
 
             try {
                 // 1. Cache the original image and get a readable path.
