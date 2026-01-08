@@ -65,6 +65,11 @@ fun FullScreenEditor(
     state: EditorState,
     onEvent: (EditorUiEvents) -> Unit,
 ) {
+
+    val isControlPanelVisible by remember(state.isControlPanelVisible) {
+        derivedStateOf { state.isControlPanelVisible }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
 
         if (state.isLoading) {
@@ -87,8 +92,12 @@ fun FullScreenEditor(
         }
 
         BoxWithConstraints(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .fillMaxSize()
+                .clickable {
+                    onEvent(EditorUiEvents.OnControlPanelToggle)
+                }
         ) {
 
             val containerW = constraints.maxWidth.toFloat()
@@ -280,7 +289,8 @@ fun FullScreenEditor(
             onClipHeightChange = { onEvent(EditorUiEvents.OnClipHeightChange(it)) },
             onHollowYChange = { onEvent(EditorUiEvents.OnHollowYChange(it)) },
             onBgColorChange = { onEvent(EditorUiEvents.OnBgColorChange(it)) },
-            onShapeChange = { onEvent(EditorUiEvents.OnShapeChange(it)) }
+            onShapeChange = { onEvent(EditorUiEvents.OnShapeChange(it)) },
+            isControlPanelVisible = isControlPanelVisible
         )
 
         Icon(

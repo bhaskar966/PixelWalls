@@ -55,12 +55,12 @@ fun BackgroundPanel(
                 modifier = Modifier
                     .size(48.dp)
                     .aspectRatio(1f)
-                    .clip(RoundedCornerShape(12.dp)) // Use a slightly larger corner radius for the container
+                    .clip(RoundedCornerShape(18.dp))
                     .then(
                         if (isSelected) Modifier.border(
-                            width = 2.dp,
+                            width = 3.dp,
                             color = MaterialTheme.colorScheme.primary,
-                            shape = RoundedCornerShape(12.dp)
+                            shape = RoundedCornerShape(18.dp)
                         ) else Modifier
                     )
                     .clickable {
@@ -70,9 +70,9 @@ fun BackgroundPanel(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(4.dp)
+                        .padding(7.dp)
                         .clip(
-                            if (isSelected) RoundedCornerShape(10.dp)
+                            if (isSelected) RoundedCornerShape(14.dp)
                             else CircleShape
                         )
                         .background(color)

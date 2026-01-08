@@ -52,6 +52,10 @@ class EditorScreenViewModel(
             is EditorUiEvents.OnShapeChange -> {
                 _editorUiState.update { it.copy(shape = event.shape) }
             }
+
+            EditorUiEvents.OnControlPanelToggle -> {
+                _editorUiState.update { it.copy(isControlPanelVisible = !it.isControlPanelVisible) }
+            }
         }
     }
 

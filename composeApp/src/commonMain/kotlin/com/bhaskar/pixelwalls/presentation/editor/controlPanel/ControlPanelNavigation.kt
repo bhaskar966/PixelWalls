@@ -1,5 +1,6 @@
 package com.bhaskar.pixelwalls.presentation.editor.controlPanel
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FloatingToolbarColors
 import androidx.compose.material3.HorizontalFloatingToolbar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -50,7 +52,13 @@ fun ControlPanelNavigation(
         )
 
     HorizontalFloatingToolbar(
-        expanded = true
+        expanded = true,
+        colors = FloatingToolbarColors(
+            toolbarContainerColor = MaterialTheme.colorScheme.surface,
+            toolbarContentColor = MaterialTheme.colorScheme.onSurface,
+            fabContentColor = MaterialTheme.colorScheme.surface,
+            fabContainerColor = MaterialTheme.colorScheme.onSurface,
+        )
     ){
         Row(
             modifier = Modifier
@@ -67,7 +75,7 @@ fun ControlPanelNavigation(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     modifier = Modifier
                         .background(
-                            color = if(isSelected) MaterialTheme.colorScheme.onSurfaceVariant else Color.Transparent,
+                            color = if(isSelected) MaterialTheme.colorScheme.onPrimaryContainer else Color.Transparent,
                             shape = ButtonDefaults.shape
                         )
                         .clickable {
@@ -75,16 +83,21 @@ fun ControlPanelNavigation(
                         }
                         .padding(horizontal = 12.dp, vertical = 8.dp)
                 ){
-                    Icon(
-                        imageVector = if (isSelected) control.selectedIcon else control.unSelectedIcon,
-                        contentDescription = control.label,
-                        tint = if (isSelected) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier
-                            .size(20.dp)
-                    )
+                    AnimatedVisibility(
+                        visible = isSelected
+                    ) {
+                        Icon(
+                            imageVector = control.selectedIcon,
+                            contentDescription = control.label,
+                            tint = MaterialTheme.colorScheme.surface,
+                            modifier = Modifier
+                                .size(20.dp)
+                        )
+                    }
+
                     Text(
                         text = control.label,
-                        color = if (isSelected) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = if (isSelected) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.onSurface,
                         fontSize = 15.sp,
                         fontWeight = if(isSelected) FontWeight.Bold else FontWeight.Normal
                     )

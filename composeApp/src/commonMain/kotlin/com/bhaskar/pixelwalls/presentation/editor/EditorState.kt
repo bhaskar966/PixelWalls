@@ -19,5 +19,7 @@ data class EditorState(
     val hollowCenterYPercent: Float = 0.3f,
 
     val bgColor: Color = Color(0xFFE6B34A),
-    val shape: String = "Circle"
+    val shape: String = "Circle",
+
+    val isControlPanelVisible: Boolean = true
 )

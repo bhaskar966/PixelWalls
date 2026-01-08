@@ -1,6 +1,13 @@
 package com.bhaskar.pixelwalls.presentation.editor.controlPanel
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,7 +38,8 @@ fun ControlPanel(
     onHollowYChange: (Float) -> Unit,
     onBgColorChange: (Color) -> Unit,
     onShapeChange: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isControlPanelVisible: Boolean = true
 ) {
 
     var currentPage by remember { mutableStateOf(ControlPage.ADJUST) }
@@ -43,57 +51,79 @@ fun ControlPanel(
             .padding(16.dp),
         contentAlignment = Alignment.BottomCenter
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .background(
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        shape = RoundedCornerShape(20.dp)
-                    )
-                    .padding(vertical = 16.dp, horizontal = 10.dp), // Use more vertical padding
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
 
-                when(currentPage) {
-                    ControlPage.ADJUST -> {
-                        AdjustPanel(
-                            state = state,
-                            onShapeRadiusChange = onShapeRadiusChange,
-                            onClipHeightChange = onClipHeightChange,
-                            onHoleYChange = onHollowYChange
+
+        val interactionSource = remember { MutableInteractionSource() }
+
+
+        AnimatedVisibility(
+            visible = isControlPanelVisible,
+            enter = slideInVertically(
+                initialOffsetY = { it / 2 }
+            ) + fadeIn(),
+            exit = slideOutVertically(
+                targetOffsetY = { it / 2 }
+            ) + fadeOut()
+        ){
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.clickable(
+                    enabled = isControlPanelVisible,
+                    interactionSource = interactionSource,
+                    indication = null
+                ) {}
+            ) {
+                Column(
+                    modifier = Modifier
+                        .background(
+                            color = MaterialTheme.colorScheme.surface,
+                            shape = RoundedCornerShape(20.dp)
                         )
+                        .padding(vertical = 16.dp, horizontal = 10.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+
+                    when(currentPage) {
+                        ControlPage.ADJUST -> {
+                            AdjustPanel(
+                                state = state,
+                                onShapeRadiusChange = onShapeRadiusChange,
+                                onClipHeightChange = onClipHeightChange,
+                                onHoleYChange = onHollowYChange
+                            )
+                        }
+                        ControlPage.BACKGROUND -> {
+                            BackgroundPanel(
+                                selectedColor = state.bgColor,
+                                onColorSelected = { color ->
+                                    onBgColorChange(color)
+                                }
+                            )
+                        }
+                        ControlPage.SHAPE -> {
+                            ShapePanel(
+                                selectedShapeName = state.shape,
+                                onShapeSelected = { shapeName ->
+                                    onShapeChange(shapeName)
+                                }
+                            )
+                        }
                     }
-                    ControlPage.BACKGROUND -> {
-                        BackgroundPanel(
-                            selectedColor = state.bgColor,
-                            onColorSelected = { color ->
-                                onBgColorChange(color)
-                            }
-                        )
-                    }
-                    ControlPage.SHAPE -> {
-                        ShapePanel(
-                            selectedShapeName = state.shape,
-                            onShapeSelected = { shapeName ->
-                                onShapeChange(shapeName)
-                            }
-                        )
-                    }
+
                 }
+
+                ControlPanelNavigation(
+                    selectedPage = currentPage,
+                    onPageSelected = { newPage ->
+                        currentPage = newPage
+                    }
+                )
 
             }
 
-            ControlPanelNavigation(
-                selectedPage = currentPage,
-                onPageSelected = { newPage ->
-                    currentPage = newPage
-                }
-            )
-
         }
+
     }
 
 }

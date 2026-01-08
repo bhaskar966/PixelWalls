@@ -55,7 +55,7 @@ fun ShapePanel(
                     )
                     .background(
                         color = if (isSelected) MaterialTheme.colorScheme.primary
-                        else MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
+                        else MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
                     )
             ) {
                 Box(
@@ -64,7 +64,7 @@ fun ShapePanel(
                         .padding(8.dp)
                         .aspectRatio(1f)
                         .clip(shape)
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .background(MaterialTheme.colorScheme.surface)
                         .clickable {
                             onShapeSelected(name)
                         }

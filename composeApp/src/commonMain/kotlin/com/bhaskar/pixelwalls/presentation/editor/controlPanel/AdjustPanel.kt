@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
@@ -51,7 +52,6 @@ fun AdjustPanel(
 
         Text(
             text = "Pinch to zoom • Drag to reposition",
-            color = Color.White.copy(alpha = 0.6f),
             fontSize = 12.sp,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
@@ -76,13 +76,11 @@ fun ControlSliders(
         ) {
             Text(
                 text = labelText,
-                color = Color.White,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium
             )
             Text(
                 text = "$percentageText%",
-                color = Color.White.copy(alpha = 0.7f),
                 fontSize = 14.sp
             )
         }
@@ -93,9 +91,9 @@ fun ControlSliders(
             valueRange = valueRange,
             modifier = Modifier.fillMaxWidth(),
             colors = SliderDefaults.colors(
-                thumbColor = Color(0xFFFFB74D),
-                activeTrackColor = Color(0xFFFFB74D),
-                inactiveTrackColor = Color.White.copy(alpha = 0.3f)
+                thumbColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                activeTrackColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                inactiveTrackColor = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.4f),
             )
         )
     }

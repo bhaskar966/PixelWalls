@@ -10,9 +10,8 @@ sealed class EditorUiEvents {
     data class OnShapeRadiusChange(val percent: Float) : EditorUiEvents()
     data class OnClipHeightChange(val percent: Float) : EditorUiEvents()
     data class OnHollowYChange(val percent: Float) : EditorUiEvents()
-
     data class OnBgColorChange(val color: Color) : EditorUiEvents()
-
     data class OnShapeChange(val shape: String) : EditorUiEvents()
+    data object OnControlPanelToggle : EditorUiEvents()
 
 }
