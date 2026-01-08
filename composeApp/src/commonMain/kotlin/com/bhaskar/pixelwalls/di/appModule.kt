@@ -2,6 +2,8 @@ package com.bhaskar.pixelwalls.di
 
 import com.bhaskar.pixelwalls.backgroundremoval.BackgroundRemover
 import com.bhaskar.pixelwalls.backgroundremoval.createBackgroundRemover
+import com.bhaskar.pixelwalls.data.PlatformImageCaptureService
+import com.bhaskar.pixelwalls.domain.capture.ImageCaptureService
 import com.bhaskar.pixelwalls.presentation.editor.EditorScreenViewModel
 import okio.FileSystem
 import okio.SYSTEM
@@ -15,6 +17,7 @@ expect val platformModule: Module
 val appModule = module {
     includes(platformModule)
     single<BackgroundRemover> { createBackgroundRemover() }
+    single<ImageCaptureService> { PlatformImageCaptureService() }
     viewModel {
         EditorScreenViewModel(
             backgroundRemover = get(),
