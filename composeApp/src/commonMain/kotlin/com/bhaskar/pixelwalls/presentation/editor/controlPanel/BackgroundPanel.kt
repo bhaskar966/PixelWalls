@@ -16,8 +16,10 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -62,7 +64,7 @@ import fluent.ui.system.icons.filled.Drop
 fun BackgroundPanel(
     originalImageBitmap: ImageBitmap,
     selectedColor: Color,
-    onColorSelected: (Color)-> Unit,
+    onColorSelected: (Color) -> Unit,
     isColorPickerVisible: Boolean,
     onColorPickerVisibilityChanged: (Boolean) -> Unit
 ) {
@@ -72,94 +74,88 @@ fun BackgroundPanel(
         Color(0xFF3D9A9A)
     )
 
-    Box() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(5),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = PaddingValues(8.dp)
+            contentPadding = PaddingValues(8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
         ) {
 
             items(presetColors) { color ->
 
                 val isSelected = selectedColor == color
 
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .size(48.dp)
-                        .aspectRatio(1f)
-                        .clip(RoundedCornerShape(18.dp))
-                        .then(
-                            if (isSelected) Modifier.border(
-                                width = 3.dp,
-                                color = MaterialTheme.colorScheme.primary,
-                                shape = RoundedCornerShape(18.dp)
-                            ) else Modifier
-                        )
-                        .clickable {
-                            onColorSelected(color)
-                        }
-                ) {
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth()) {
                     Box(
+                        contentAlignment = Alignment.Center,
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(7.dp)
-                            .clip(
-                                if (isSelected) RoundedCornerShape(14.dp)
-                                else CircleShape
+                            .size(52.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .then(
+                                if (isSelected) Modifier.border(
+                                    3.dp,
+                                    MaterialTheme.colorScheme.primary,
+                                    RoundedCornerShape(16.dp)
+                                )
+                                else Modifier
                             )
-                            .background(color)
-                    )
+                            .clickable { onColorSelected(color) }
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(if (isSelected) RoundedCornerShape(10.dp) else CircleShape)
+                                .background(color)
+                        )
+                    }
                 }
+
             }
 
             item {
-
                 val isCustomColorApplied = selectedColor !in presetColors.toSet()
 
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .size(48.dp)
-                        .aspectRatio(1f)
-                        .clip(
-                            if (isCustomColorApplied) RoundedCornerShape(14.dp)
-                            else CircleShape
-                        )
-                        .border(
-                            width = 2.dp,
-                            color = MaterialTheme.colorScheme.primary,
-                            shape = if (isCustomColorApplied) RoundedCornerShape(14.dp)
-                            else CircleShape
-                        )
-                        .clickable {
-                            onColorPickerVisibilityChanged(true)
-                        }
-                ) {
-
-                    val boxBgCol = if(isCustomColorApplied) selectedColor else MaterialTheme.colorScheme.primary
-
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth()) {
                     Box(
+                        contentAlignment = Alignment.Center,
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(7.dp)
-                            .clip(
-                                if (isCustomColorApplied) RoundedCornerShape(14.dp)
-                                else CircleShape
+                            .size(52.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .then(
+                                if (isCustomColorApplied) Modifier.border(
+                                    3.dp,
+                                    MaterialTheme.colorScheme.primary,
+                                    RoundedCornerShape(16.dp)
+                                )
+                                else Modifier
                             )
-                            .background(boxBgCol),
-                        contentAlignment = Alignment.Center
+                            .clickable {
+                                onColorPickerVisibilityChanged(true)
+                            }
                     ) {
+                        val boxBgCol = if (isCustomColorApplied) selectedColor else MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
 
-                        Icon(
-                            imageVector = FluentIcons.Filled.Drop,
-                            contentDescription = "Choose Custom Color",
-                            tint = boxBgCol.oppositeColor(),
-                            modifier = Modifier.size(24.dp)
-                        )
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(if (isCustomColorApplied) RoundedCornerShape(10.dp) else CircleShape)
+                                .background(boxBgCol),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = FluentIcons.Filled.Drop,
+                                contentDescription = "Choose Custom Color",
+                                tint = if (isCustomColorApplied) boxBgCol.oppositeColor() else MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
                     }
-
                 }
             }
 
@@ -255,7 +251,7 @@ fun ColorPickerPopUp(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
-                ){
+                ) {
 
                     when (selectedTabIndex) {
                         0 -> {

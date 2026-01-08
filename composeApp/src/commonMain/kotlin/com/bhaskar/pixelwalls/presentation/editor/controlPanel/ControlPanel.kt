@@ -13,8 +13,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -55,9 +57,7 @@ fun ControlPanel(
         contentAlignment = Alignment.BottomCenter
     ) {
 
-
         val interactionSource = remember { MutableInteractionSource() }
-
 
         AnimatedVisibility(
             visible = isControlPanelVisible,
@@ -66,7 +66,10 @@ fun ControlPanel(
             ) + fadeIn(),
             exit = slideOutVertically(
                 targetOffsetY = { it / 2 }
-            ) + fadeOut()
+            ) + fadeOut(),
+            modifier = Modifier
+                .widthIn(max = 500.dp)
+                .fillMaxWidth()
         ){
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -79,6 +82,7 @@ fun ControlPanel(
             ) {
                 Column(
                     modifier = Modifier
+                        .fillMaxWidth()
                         .background(
                             color = MaterialTheme.colorScheme.surface,
                             shape = RoundedCornerShape(20.dp)

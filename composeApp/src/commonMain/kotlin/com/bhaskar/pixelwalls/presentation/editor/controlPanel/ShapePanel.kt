@@ -6,9 +6,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -35,41 +38,39 @@ fun ShapePanel(
     LazyVerticalGrid(
         columns = GridCells.Fixed(5),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
         modifier = Modifier
-            .height(200.dp),
-        contentPadding = PaddingValues(8.dp)
+            .fillMaxWidth()
+            .heightIn(max = 300.dp),
+        contentPadding = PaddingValues(12.dp)
     ) {
         items(allShapes) { (name, shapeProperty) ->
 
             val shape = shapeProperty.toShape()
             val isSelected = selectedShapeName == name
 
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .size(48.dp)
-                    .aspectRatio(1f)
-                    .clip(
-                        if (isSelected) RoundedCornerShape(10.dp) else CircleShape
-                    )
-                    .background(
-                        color = if (isSelected) MaterialTheme.colorScheme.primary
-                        else MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
-                    )
-            ) {
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth()) {
                 Box(
+                    contentAlignment = Alignment.Center,
                     modifier = Modifier
-                        .size(48.dp)
-                        .padding(8.dp)
-                        .aspectRatio(1f)
-                        .clip(shape)
-                        .background(MaterialTheme.colorScheme.surface)
-                        .clickable {
-                            onShapeSelected(name)
-                        }
-                )
+                        .size(56.dp)
+                        .clip(if (isSelected) RoundedCornerShape(12.dp) else CircleShape)
+                        .background(
+                            color = if (isSelected) MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                        )
+                        .clickable { onShapeSelected(name) }
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .padding(8.dp)
+                            .clip(shape)
+                            .background(MaterialTheme.colorScheme.surface)
+                    )
+                }
             }
+
         }
     }
 

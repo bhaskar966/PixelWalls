@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bhaskar.pixelwalls.presentation.editor.EditorState
+import com.bhaskar.pixelwalls.utils.zoomInstructionText
 
 @Composable
 fun AdjustPanel(
@@ -51,7 +52,7 @@ fun AdjustPanel(
         )
 
         Text(
-            text = "Pinch to zoom • Drag to reposition",
+            text = zoomInstructionText,
             fontSize = 12.sp,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
