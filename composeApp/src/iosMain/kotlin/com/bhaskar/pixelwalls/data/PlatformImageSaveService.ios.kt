@@ -56,7 +56,7 @@ actual class PlatformImageSaveService : ImageSaveService {
     ): Result<String> {
         val cacheDir = NSFileManager.defaultManager.URLsForDirectory(
             NSCachesDirectory, NSUserDomainMask
-        ).firstOrNull()?.path ?: return Result.failure(Exception("No cache"))
+        ).firstOrNull() as? String ?: return Result.failure(Exception("No cache"))
 
         val filePath = "$cacheDir/$fileName"
         imageBytes.usePinned { pinned ->
