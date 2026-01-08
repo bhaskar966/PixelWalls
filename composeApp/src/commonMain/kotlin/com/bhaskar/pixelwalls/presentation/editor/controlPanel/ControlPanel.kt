@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import com.bhaskar.pixelwalls.presentation.editor.EditorState
@@ -33,11 +34,13 @@ import com.bhaskar.pixelwalls.presentation.editor.EditorState
 @Composable
 fun ControlPanel(
     state: EditorState,
+    originalImageBitmap: ImageBitmap,
     onShapeRadiusChange: (Float) -> Unit,
     onClipHeightChange: (Float) -> Unit,
     onHollowYChange: (Float) -> Unit,
     onBgColorChange: (Color) -> Unit,
     onShapeChange: (String) -> Unit,
+    onColorPickerVisibilityChanged: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     isControlPanelVisible: Boolean = true
 ) {
@@ -95,10 +98,13 @@ fun ControlPanel(
                         }
                         ControlPage.BACKGROUND -> {
                             BackgroundPanel(
+                                originalImageBitmap = originalImageBitmap,
                                 selectedColor = state.bgColor,
                                 onColorSelected = { color ->
                                     onBgColorChange(color)
-                                }
+                                },
+                                isColorPickerVisible = state.isColorPickerVisible,
+                                onColorPickerVisibilityChanged = onColorPickerVisibilityChanged
                             )
                         }
                         ControlPage.SHAPE -> {

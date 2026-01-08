@@ -285,11 +285,13 @@ fun FullScreenEditor(
 
         ControlPanel(
             state = state,
+            originalImageBitmap = state.originalBitmap!!,
             onShapeRadiusChange = { onEvent(EditorUiEvents.OnShapeRadiusChange(it)) },
             onClipHeightChange = { onEvent(EditorUiEvents.OnClipHeightChange(it)) },
             onHollowYChange = { onEvent(EditorUiEvents.OnHollowYChange(it)) },
             onBgColorChange = { onEvent(EditorUiEvents.OnBgColorChange(it)) },
             onShapeChange = { onEvent(EditorUiEvents.OnShapeChange(it)) },
+            onColorPickerVisibilityChanged = { onEvent(EditorUiEvents.OnColorPickerToggle(it)) },
             isControlPanelVisible = isControlPanelVisible
         )
 

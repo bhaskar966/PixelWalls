@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.bhaskar.pixelwalls.backgroundremoval.BackgroundRemover
 import com.bhaskar.pixelwalls.domain.model.ProcessedImage
 import com.bhaskar.pixelwalls.utils.cache.ImageCache
+import com.bhaskar.pixelwalls.utils.editor.toImageBitmap
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -56,6 +57,10 @@ class EditorScreenViewModel(
             EditorUiEvents.OnControlPanelToggle -> {
                 _editorUiState.update { it.copy(isControlPanelVisible = !it.isControlPanelVisible) }
             }
+
+            is EditorUiEvents.OnColorPickerToggle -> {
+                _editorUiState.update { it.copy(isColorPickerVisible = event.visible) }
+            }
         }
     }
 
@@ -81,6 +86,7 @@ class EditorScreenViewModel(
                         // 4. Update the state with the NEW, RELIABLE file paths.
                         _editorUiState.value = EditorState(
                             originalImageUri = originalPath,
+                            originalBitmap = imageBytes.toImageBitmap(),
                             subjectImageUri = subjectPath,
                             imageWidth = processedImage.width,
                             imageHeight = processedImage.height,

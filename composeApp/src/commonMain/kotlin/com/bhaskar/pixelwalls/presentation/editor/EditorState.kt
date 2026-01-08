@@ -1,9 +1,11 @@
 package com.bhaskar.pixelwalls.presentation.editor
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 
 data class EditorState(
     val isLoading: Boolean = false,
+    val originalBitmap: ImageBitmap? = null,
     val originalImageUri: String? = null,
     val subjectImageUri: String? = null,
     val imageWidth: Int = 0,
@@ -21,5 +23,6 @@ data class EditorState(
     val bgColor: Color = Color(0xFFE6B34A),
     val shape: String = "Circle",
 
-    val isControlPanelVisible: Boolean = true
+    val isControlPanelVisible: Boolean = true,
+    val isColorPickerVisible: Boolean = false
 )
