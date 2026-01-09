@@ -18,7 +18,10 @@ import platform.Foundation.writeToFile
 import platform.Photos.PHAssetChangeRequest
 import platform.Photos.PHAuthorizationStatusAuthorized
 import platform.Photos.PHPhotoLibrary
+import platform.UIKit.UIActivityViewController
+import platform.UIKit.UIApplication
 import platform.UIKit.UIImage
+import platform.UIKit.popoverPresentationController
 import kotlin.coroutines.resume
 
 actual class PlatformImageSaveService : ImageSaveService {
@@ -42,12 +45,10 @@ actual class PlatformImageSaveService : ImageSaveService {
             }
 
             PHPhotoLibrary.sharedPhotoLibrary().performChanges({
-                val request = PHAssetChangeRequest.creationRequestForAssetFromImage(image)
-                addToPixelWallsAlbum(request?.placeholderForCreatedAsset?.localIdentifier)
+                PHAssetChangeRequest.creationRequestForAssetFromImage(image)
             }) { success, error ->
-                if(success) cont.resume(Result.success("photos://saved"))
-                else cont.resume(Result.failure(Exception("Unknown error")))
-
+                if (success) cont.resume(Result.success("photos://saved"))
+                else cont.resume(Result.failure(Exception(error?.localizedDescription ?: "Unknown error")))
             }
 
         }
@@ -91,8 +92,29 @@ actual class PlatformImageSaveService : ImageSaveService {
         imageBytes: ByteArray
     ): Result<Unit> {
         val image = createUIImage(imageBytes) ?: return Result.failure(Exception("Invalid image"))
-        // UIActivityViewController implementation
-        return Result.success(Unit)
+
+        val window = UIApplication.sharedApplication.keyWindow
+        val rootViewerController = window?.rootViewController
+
+        if(rootViewerController != null) {
+
+            val activityController = UIActivityViewController(
+                activityItems = listOf(image),
+                applicationActivities = null
+            )
+
+            activityController.popoverPresentationController?.sourceView = rootViewerController.view
+
+            rootViewerController.presentViewController(
+                viewControllerToPresent = activityController,
+                animated = true,
+                completion = null
+            )
+
+            return Result.success(Unit)
+        }
+
+        return Result.failure(Exception("Root view controller not found"))
     }
 
     @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
@@ -104,10 +126,6 @@ actual class PlatformImageSaveService : ImageSaveService {
             )
         }
         return UIImage.imageWithData(data)
-    }
-
-    private fun addToPixelWallsAlbum(assetId: String?) {
-        TODO()
     }
 
 }
