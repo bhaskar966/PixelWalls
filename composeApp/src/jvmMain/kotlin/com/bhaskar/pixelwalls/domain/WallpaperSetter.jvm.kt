@@ -10,7 +10,7 @@ import java.io.File
 
 
 private interface User32Library : StdCallLibrary {
-    fun systemParametersInfoW(
+    fun SystemParametersInfoW(
         uiAction: Int,
         uiParam: Int,
         pvParam: String?,
@@ -76,7 +76,7 @@ actual class PlatformWallpaperSetter : WallpaperSetter {
 
     private fun setWindowsWallpaper(imageFile: File): WallpaperSetResult {
         return try {
-            val success = User32Library.INSTANCE.systemParametersInfoW(
+            val success = User32Library.INSTANCE.SystemParametersInfoW(
                 User32Library.SPI_SETDESKWALLPAPER,
                 0,
                 imageFile.absolutePath,
