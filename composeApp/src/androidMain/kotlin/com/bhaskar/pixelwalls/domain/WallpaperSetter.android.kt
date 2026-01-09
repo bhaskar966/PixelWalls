@@ -13,6 +13,9 @@ import java.io.File
 actual class PlatformWallpaperSetter(
     private val contextProvider: () -> Context
 ) : WallpaperSetter {
+
+    actual override val canApplyWallpaperInDifferentScreens: Boolean = true
+
     actual override suspend fun setWallpaper(
         imageBytes: ByteArray,
         target: WallpaperTarget

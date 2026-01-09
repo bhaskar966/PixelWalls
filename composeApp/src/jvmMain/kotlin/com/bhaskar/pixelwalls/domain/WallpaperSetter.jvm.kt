@@ -29,6 +29,9 @@ private interface User32Library : StdCallLibrary {
 }
 
 actual class PlatformWallpaperSetter : WallpaperSetter {
+
+    actual override val canApplyWallpaperInDifferentScreens: Boolean = false
+
     actual override suspend fun setWallpaper(
         imageBytes: ByteArray,
         target: WallpaperTarget

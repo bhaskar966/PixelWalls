@@ -26,6 +26,7 @@ interface WallpaperSetter {
 
     suspend fun openWallpaperPicker(imageBytes: ByteArray): WallpaperSetResult
 
+    val canApplyWallpaperInDifferentScreens: Boolean
 }
 
 expect class PlatformWallpaperSetter: WallpaperSetter {
@@ -36,4 +37,5 @@ expect class PlatformWallpaperSetter: WallpaperSetter {
 
     override fun canSetWallpaperDirectly(): Boolean
     override suspend fun openWallpaperPicker(imageBytes: ByteArray): WallpaperSetResult
+    override val canApplyWallpaperInDifferentScreens: Boolean
 }

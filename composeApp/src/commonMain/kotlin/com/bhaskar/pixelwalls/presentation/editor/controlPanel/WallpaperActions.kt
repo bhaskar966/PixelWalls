@@ -18,6 +18,8 @@ import kotlin.time.ExperimentalTime
 
 enum class ActionStep { Main, TargetSelection, Result }
 
+// D:/leaning/Kotlin/PixelWalls/composeApp/src/commonMain/kotlin/com/bhaskar/pixelwalls/presentation/editor/controlPanel/WallpaperActions.kt
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalTime::class)
 @Composable
 fun WallpaperActions(
@@ -46,11 +48,23 @@ fun WallpaperActions(
 
                         Button(
                             onClick = {
-                                if (wallpaperSetter.canSetWallpaperDirectly()) currentStep = ActionStep.TargetSelection
-                                else {
+                                if (wallpaperSetter.canSetWallpaperDirectly()) {
+                                    if (wallpaperSetter.canApplyWallpaperInDifferentScreens) {
+                                        currentStep = ActionStep.TargetSelection
+                                    } else {
+                                        scope.launch {
+                                            isOperating = true
+                                            resultMessage = wallpaperSetter.setWallpaper(imageBytes, WallpaperTarget.HOME_SCREEN)
+                                            currentStep = ActionStep.Result
+                                            isOperating = false
+                                        }
+                                    }
+                                } else {
                                     scope.launch {
+                                        isOperating = true
                                         resultMessage = wallpaperSetter.setWallpaper(imageBytes)
                                         currentStep = ActionStep.Result
+                                        isOperating = false
                                     }
                                 }
                             },
@@ -109,6 +123,7 @@ fun WallpaperActions(
                     }
 
                     ActionStep.Result -> {
+                        // ... Result UI stays the same ...
                         val res = resultMessage
                         Text(
                             text = when(res) {
@@ -129,7 +144,6 @@ fun WallpaperActions(
                         )
                         Spacer(Modifier.height(16.dp))
 
-                        // Desktop specific "Locate" button if it was a UserActionRequired
                         if (res is WallpaperSetResult.UserActionRequired && res.instructions.contains("saved to")) {
                             Button(onClick = {
                                 scope.launch { wallpaperSetter.openWallpaperPicker(imageBytes) }
@@ -149,3 +163,4 @@ fun WallpaperActions(
         }
     }
 }
+
