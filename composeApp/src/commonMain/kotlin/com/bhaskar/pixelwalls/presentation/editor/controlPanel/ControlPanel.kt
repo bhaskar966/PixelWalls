@@ -43,6 +43,7 @@ fun ControlPanel(
     onBgColorChange: (Color) -> Unit,
     onShapeChange: (String) -> Unit,
     onColorPickerVisibilityChanged: (Boolean) -> Unit,
+    onSubjectToggle: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     isControlPanelVisible: Boolean = true
 ) {
@@ -97,7 +98,8 @@ fun ControlPanel(
                                 state = state,
                                 onShapeRadiusChange = onShapeRadiusChange,
                                 onClipHeightChange = onClipHeightChange,
-                                onHoleYChange = onHollowYChange
+                                onHoleYChange = onHollowYChange,
+                                onSubjectToggle = onSubjectToggle
                             )
                         }
                         ControlPage.BACKGROUND -> {

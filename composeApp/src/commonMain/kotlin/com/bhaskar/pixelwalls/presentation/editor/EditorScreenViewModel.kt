@@ -68,6 +68,10 @@ class EditorScreenViewModel(
             is EditorUiEvents.OnColorPickerToggle -> {
                 _editorUiState.update { it.copy(isColorPickerVisible = event.visible) }
             }
+
+            is EditorUiEvents.OnSubjectToggle -> {
+                _editorUiState.update { it.copy(isSubjectEnabled = event.enabled) }
+            }
         }
     }
 
@@ -117,95 +121,7 @@ class EditorScreenViewModel(
         }
     }
 
-//    @OptIn(ExperimentalTime::class)
-//    private fun loadImage(imageUri: String) {
-//
-//        viewModelScope.launch {
-//            _editorUiState.value = EditorState(isLoading = true)
-//
-//            try {
-//
-//                val imageBytes = fileSystem.read(imageUri.toPath()) {
-//                    readByteArray()
-//                }
-//
-//                val result = backgroundRemover.removeBackground(imageBytes)
-//
-//                result.fold(
-//                    onSuccess = { processedImage ->
-//
-//                        val fileName = "processed_${Random.nextLong()}.png"
-//                        val resultUri = imageCache.saveImageToCache(processedImage.imageBytes, fileName)
-//
-//                        _editorUiState.value = EditorState(
-//                            originalImageUri = imageUri, // The full original image
-//                            subjectImageUri = resultUri, // The foreground-only image
-//                            subjectBounds = processedImage.toRelativeRect(), // Calculate the relative bounds
-//                            isLoading = false
-//                        )
-//                    },
-//                    onFailure = { error ->
-//                        _editorUiState.value = EditorState(
-//                            isLoading = false,
-//                            error = "Background removal failed: ${error.message}"
-//                        )
-//                    }
-//                )
-//
-//            } catch (e: Exception) {
-//                _editorUiState.value = EditorState(
-//                    isLoading = false,
-//                    error = "Failed to load image: ${e.message}"
-//                )
-//            }
-//
-//        }
-//
-//    }
 
-    private fun ProcessedImage.toRelativeRect(): Rect {
-
-        val originalWidth = this.width.toFloat()
-        val originalHeight = this.height.toFloat()
-
-        val foregroundWidth = this.width * 0.5f
-        val foregroundHeight = this.height * 0.7f
-
-        val left = (originalWidth - foregroundWidth) / 2
-        val top = (originalHeight - foregroundHeight) / 2
-        val right = left + foregroundWidth
-        val bottom = top + foregroundHeight
-
-        return Rect(
-            left = left / originalWidth,
-            top = top / originalHeight,
-            right = right / originalWidth,
-            bottom = bottom / originalHeight
-        )
-
-    }
-
-//    suspend fun processImage(imageBytes: ByteArray) {
-//        _editorUiState.value = EditorState(isLoading = true)
-//        val result = backgroundRemover.removeBackground(imageBytes)
-//
-//        result.fold(
-//            onSuccess = { processedImage ->
-//                _editorUiState.value = EditorState(
-//                    originalImageUri = imageBytes.toImageBitmap(),
-//                    subjectImageUri = processedImage.imageBytes.toImageBitmap(),
-//                    subjectBounds = processedImage.toRelativeRect(),
-//                    isLoading = false
-//                )
-//            },
-//            onFailure = { error ->
-//                _editorUiState.value = EditorState(
-//                    isLoading = false,
-//                    error = "Background removal failed: ${error.message}"
-//                )
-//            }
-//        )
-//    }
 
     override fun onCleared() {
         backgroundRemover.close()

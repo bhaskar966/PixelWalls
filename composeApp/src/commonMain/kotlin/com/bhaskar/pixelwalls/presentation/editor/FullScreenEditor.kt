@@ -4,6 +4,8 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Canvas
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.rememberTransformableState
@@ -13,8 +15,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
@@ -31,7 +31,6 @@ import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
 import com.bhaskar.pixelwalls.domain.capture.ImageCaptureService
 import com.bhaskar.pixelwalls.domain.capture.ImageFormat
-import com.bhaskar.pixelwalls.domain.capture.ImageSaveService
 import com.bhaskar.pixelwalls.presentation.editor.controlPanel.ControlPanel
 import com.bhaskar.pixelwalls.presentation.editor.controlPanel.WallpaperActions
 import com.bhaskar.pixelwalls.presentation.editor.controlPanel.components.allShapes
@@ -56,17 +55,17 @@ fun FullScreenEditor(
     val captureService = koinInject<ImageCaptureService>()
     val scope = rememberCoroutineScope()
 
-    // State for the Post-Capture Dialog
+    // State for the Wallpaper Actions Dialog
     var showWallpaperDialog by remember { mutableStateOf(false) }
     var capturedBytes by remember { mutableStateOf<ByteArray?>(null) }
 
-    // 1. Gesture Listener Logic
+    // 1. Gesture Listener Logic (Pinch & Pan)
     val transformableState = rememberTransformableState { zoomChange, panChange, _ ->
         onEvent(EditorUiEvents.OnScaleChange((state.scale * zoomChange).coerceIn(0.5f, 5f)))
         onEvent(EditorUiEvents.OnOffsetChange(state.offsetX + panChange.x, state.offsetY + panChange.y))
     }
 
-    // 2. Capturable Content Wrapper
+    // 2. Wrap the visual content in the capturable service
     val capturableCanvas = captureService.rememberCapturableContent {
         EditorCanvasOnly(state = state)
     }
@@ -78,6 +77,7 @@ fun FullScreenEditor(
         }
 
         // --- INTERACTION LAYER ---
+        // This invisible layer captures gestures and clicks without being part of the screenshot
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -125,17 +125,16 @@ fun FullScreenEditor(
                 IconButton(
                     onClick = {
                         scope.launch {
-                            // 1. Hide UI
+                            // 1. Hide UI for a clean capture
                             onEvent(EditorUiEvents.OnControlPanelToggle)
-                            // 2. Wait for animations to finish (Essential for clean capture)
-                            delay(300)
+                            delay(300) // Wait for fade-out animation
 
-                            // 3. Capture pixels from the GraphicsLayer
+                            // 2. Capture pixels
                             capturableCanvas.capture().onSuccess { bytes ->
                                 capturedBytes = bytes
                                 showWallpaperDialog = true
                             }.onFailure {
-                                // If capture fails, bring UI back
+                                // Re-show UI if something fails
                                 onEvent(EditorUiEvents.OnControlPanelToggle)
                             }
                         }
@@ -168,6 +167,7 @@ fun FullScreenEditor(
                     onBgColorChange = { onEvent(EditorUiEvents.OnBgColorChange(it)) },
                     onShapeChange = { onEvent(EditorUiEvents.OnShapeChange(it)) },
                     onColorPickerVisibilityChanged = { onEvent(EditorUiEvents.OnColorPickerToggle(it)) },
+                    onSubjectToggle = { onEvent(EditorUiEvents.OnSubjectToggle(it)) },
                     isControlPanelVisible = state.isControlPanelVisible
                 )
             }
@@ -180,8 +180,7 @@ fun FullScreenEditor(
                 onDismiss = {
                     showWallpaperDialog = false
                     capturedBytes = null
-                    // Restore UI visibility
-                    onEvent(EditorUiEvents.OnControlPanelToggle)
+                    onEvent(EditorUiEvents.OnControlPanelToggle) // Restore UI
                 }
             )
         }
@@ -198,7 +197,7 @@ private fun EditorCanvasOnly(state: EditorState) {
         val density = LocalDensity.current
         val layoutDir = LocalLayoutDirection.current
 
-        // 1. Shape Geometry
+        // Shape Geometry
         val radius = (minDim * state.shapeRadiusPercent / 2f).coerceAtMost((minDim * 0.9f) / 2f)
         val centerY = with(density) {
             val padPx = 8.dp.toPx()
@@ -210,7 +209,7 @@ private fun EditorCanvasOnly(state: EditorState) {
         val pivotX = 0.5f
         val pivotY = (center.y / containerH).coerceIn(0f, 1f)
 
-        // 2. Clipping Math
+        // Clipping Math (Inverted for intuitive slider behavior)
         val invertedClipPercent = 1.0f - state.clipHeightPercent
         val cutLineY = (center.y - radius + (2f * radius * invertedClipPercent)).coerceIn(0f, containerH)
 
@@ -227,12 +226,13 @@ private fun EditorCanvasOnly(state: EditorState) {
                 translationX = tx; translationY = ty
             }
 
-        // 3. Path Generation
+        // Path Logic
         val maskShape = allShapes.find { it.first == state.shape }?.second?.toShape() ?: CircleShape
         val hollowPath = remember(radius, center, state.shape, density, layoutDir) {
             buildMaskPath(maskShape, radius * 2f, center, density, layoutDir)
         }
 
+        // Translate the path into the transformed local space of the image
         val hollowPathLocal = remember(hollowPath, s, tx, ty) {
             Path().apply {
                 addPath(hollowPath)
@@ -244,8 +244,9 @@ private fun EditorCanvasOnly(state: EditorState) {
         }
         val cutLineYLocal = ((cutLineY - ty) * invScale).coerceIn(0f, containerH)
 
-        // --- LAYERS ---
-        // Layer 1 & 3a
+        // --- RENDERING LAYERS ---
+
+        // Layer 1 & 3a: Background + Subject part inside the hole
         Box(modifier = imageTransform) {
             AsyncImage(
                 model = state.originalImageUri,
@@ -253,21 +254,24 @@ private fun EditorCanvasOnly(state: EditorState) {
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Fit
             )
-            AsyncImage(
-                model = state.subjectImageUri,
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize().drawWithCache {
-                    onDrawWithContent {
-                        clipRect(top = cutLineYLocal) {
-                            clipPath(hollowPathLocal) { this@onDrawWithContent.drawContent() }
+
+            if (state.isSubjectEnabled) {
+                AsyncImage(
+                    model = state.subjectImageUri,
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize().drawWithCache {
+                        onDrawWithContent {
+                            clipRect(top = cutLineYLocal) {
+                                clipPath(hollowPathLocal) { this@onDrawWithContent.drawContent() }
+                            }
                         }
-                    }
-                },
-                contentScale = ContentScale.Fit
-            )
+                    },
+                    contentScale = ContentScale.Fit
+                )
+            }
         }
 
-        // Layer 2
+        // Layer 2: The Color Wall with the transparent hole
         Canvas(modifier = Modifier.fillMaxSize().graphicsLayer {
             compositingStrategy = CompositingStrategy.Offscreen
         }) {
@@ -275,26 +279,28 @@ private fun EditorCanvasOnly(state: EditorState) {
             drawPath(path = hollowPath, color = Color.Transparent, blendMode = BlendMode.Clear)
         }
 
-        // Layer 3b (Pop-out)
-        AsyncImage(
-            model = state.subjectImageUri,
-            contentDescription = null,
-            modifier = imageTransform
-                .drawWithCache {
-                    onDrawWithContent {
-                        clipRect(bottom = cutLineYLocal) { this@onDrawWithContent.drawContent() }
+        // Layer 3b: Subject Pop-out (In front of wall)
+        if (state.isSubjectEnabled) {
+            AsyncImage(
+                model = state.subjectImageUri,
+                contentDescription = null,
+                modifier = imageTransform
+                    .drawWithCache {
+                        onDrawWithContent {
+                            clipRect(bottom = cutLineYLocal) { this@onDrawWithContent.drawContent() }
+                        }
                     }
-                }
-                .graphicsLayer {
-                    rotationX = -10f
-                    cameraDistance = 24f * density.density
-                },
-            contentScale = ContentScale.Fit
-        )
+                    .graphicsLayer {
+                        // 3D Tilt effect
+                        rotationX = -10f
+                        cameraDistance = 24f * density.density
+                    },
+                contentScale = ContentScale.Fit
+            )
+        }
     }
 }
 
-// Helpers unchanged as they were correct
 private fun buildMaskPath(s: Shape, d: Float, c: Offset, den: Density, l: LayoutDirection): Path {
     val outline = s.createOutline(Size(d, d), l, den)
     return outline.toPath().apply { translate(c - Offset(d / 2f, d / 2f)) }

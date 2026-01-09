@@ -14,5 +14,6 @@ sealed class EditorUiEvents {
     data class OnShapeChange(val shape: String) : EditorUiEvents()
     data object OnControlPanelToggle : EditorUiEvents()
     data class OnColorPickerToggle(val visible: Boolean) : EditorUiEvents()
+    data class OnSubjectToggle(val enabled: Boolean): EditorUiEvents()
 
 }

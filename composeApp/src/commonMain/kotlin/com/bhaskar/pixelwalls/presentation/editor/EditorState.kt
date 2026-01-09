@@ -19,6 +19,7 @@ data class EditorState(
     val shapeRadiusPercent: Float = 0.5f,
     val clipHeightPercent: Float = 0.7f,
     val hollowCenterYPercent: Float = 0.3f,
+    val isSubjectEnabled: Boolean = true,
 
     val bgColor: Color = Color(0xFFE6B34A),
     val shape: String = "Circle",

@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -23,9 +25,27 @@ fun AdjustPanel(
     state: EditorState,
     onShapeRadiusChange: (Float) -> Unit,
     onClipHeightChange: (Float) -> Unit,
-    onHoleYChange: (Float) -> Unit
+    onHoleYChange: (Float) -> Unit,
+    onSubjectToggle: (Boolean) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "3D Pop-out Effect",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Switch(
+                checked = state.isSubjectEnabled,
+                onCheckedChange = onSubjectToggle,
+            )
+        }
+
         ControlSliders(
             value = state.shapeRadiusPercent,
             onValueChange = onShapeRadiusChange,
@@ -34,13 +54,15 @@ fun AdjustPanel(
             percentageText = (state.shapeRadiusPercent * 100).toInt().toString()
         )
 
-        ControlSliders(
-            value = state.clipHeightPercent,
-            onValueChange = onClipHeightChange,
-            valueRange = 0.3f..1f,
-            labelText = "Clip Height",
-            percentageText = (state.clipHeightPercent * 100).toInt().toString()
-        )
+        if (state.isSubjectEnabled) {
+            ControlSliders(
+                value = state.clipHeightPercent,
+                onValueChange = onClipHeightChange,
+                valueRange = 0.3f..1f,
+                labelText = "Pop-out Amount", // More intuitive name
+                percentageText = (state.clipHeightPercent * 100).toInt().toString()
+            )
+        }
 
 
         ControlSliders(
