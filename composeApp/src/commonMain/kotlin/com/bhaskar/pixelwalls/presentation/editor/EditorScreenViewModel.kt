@@ -2,9 +2,9 @@ package com.bhaskar.pixelwalls.presentation.editor
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bhaskar.pixelwalls.domain.service.ImageSaveService
 import com.bhaskar.pixelwalls.domain.service.background.BackgroundRemover
 import com.bhaskar.pixelwalls.domain.service.ModelStatusService
-import com.bhaskar.pixelwalls.utils.cache.ImageCache
 import com.bhaskar.pixelwalls.utils.editor.toImageBitmap
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,7 +15,7 @@ import kotlin.time.ExperimentalTime
 
 class EditorScreenViewModel(
     private val backgroundRemover: BackgroundRemover,
-    private val imageCache: ImageCache,
+    private val saveService: ImageSaveService,
     private val modelStatusService: ModelStatusService
 ): ViewModel() {
 
@@ -74,48 +74,57 @@ class EditorScreenViewModel(
     @OptIn(ExperimentalTime::class)
     private fun processAndCacheImage(imageBytes: ByteArray) {
         viewModelScope.launch {
-            _editorUiState.value = EditorState(isLoading = true, originalBitmap = null)
+            _editorUiState.update { it.copy(isLoading = true, originalBitmap = null, error = null) }
 
             try {
-                // 1. Cache the original image and get a readable path.
-                val originalFileName = "original_${Clock.System.now().toEpochMilliseconds()}.jpg"
-                val originalPath = imageCache.saveImageToCache(imageBytes, originalFileName)
+                val bitmap = imageBytes.toImageBitmap()
 
-                // 2. Process the image.
+                val originalFileName = "original_${Clock.System.now().toEpochMilliseconds()}.jpg"
+                val cacheResult = saveService.saveToCache(imageBytes = imageBytes, fileName = originalFileName)
+
+                cacheResult.onSuccess { uri ->
+                    _editorUiState.update { it.copy(originalImageUri = uri, originalBitmap = bitmap) }
+                }.onFailure { e ->
+                    _editorUiState.update { it.copy(error = "Failed to cache original: ${e.message}") }
+                }
+
                 val result = backgroundRemover.removeBackground(imageBytes)
 
                 result.fold(
                     onSuccess = { processedImage ->
-                        // 3. Cache the processed subject image and get another readable path.
                         val subjectFileName = "subject_${Clock.System.now().toEpochMilliseconds()}.png"
-                        val subjectPath = imageCache.saveImageToCache(processedImage.imageBytes, subjectFileName)
 
-                        // 4. Update the state with the NEW, RELIABLE file paths.
-                        _editorUiState.value = EditorState(
-                            originalImageUri = originalPath,
-                            originalBitmap = imageBytes.toImageBitmap(),
-                            subjectImageUri = subjectPath,
-                            imageWidth = processedImage.width,
-                            imageHeight = processedImage.height,
-                            isLoading = false
-                        )
+                        saveService.saveToCache(fileName = subjectFileName, imageBytes = processedImage.imageBytes)
+                            .onSuccess { subjectUri ->
+                                _editorUiState.update {
+                                    it.copy(
+                                        subjectImageUri = subjectUri,
+                                        imageWidth = processedImage.width,
+                                        imageHeight = processedImage.height,
+                                        isLoading = false // Done!
+                                    )
+                                }
+                            }
+                            .onFailure { error ->
+                                _editorUiState.update {
+                                    it.copy(isLoading = false, error = "Failed to cache subject: ${error.message}")
+                                }
+                            }
                     },
                     onFailure = { error ->
-                        _editorUiState.value = EditorState(
-                            isLoading = false,
-                            error = "Background removal failed: ${error.message}"
-                        )
+                        _editorUiState.update {
+                            it.copy(isLoading = false, error = "AI Processing failed: ${error.message}")
+                        }
                     }
                 )
             } catch (e: Exception) {
-                // This can catch errors from the caching step
-                _editorUiState.value = EditorState(
-                    isLoading = false,
-                    error = "Failed to cache image: ${e.message}"
-                )
+                _editorUiState.update {
+                    it.copy(isLoading = false, error = "Unexpected error: ${e.message}")
+                }
             }
         }
     }
+
 
 
 

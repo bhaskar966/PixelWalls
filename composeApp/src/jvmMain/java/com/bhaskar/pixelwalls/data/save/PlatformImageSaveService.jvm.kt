@@ -28,11 +28,18 @@ actual class PlatformImageSaveService : ImageSaveService {
     actual override suspend fun saveToCache(
         fileName: String,
         imageBytes: ByteArray
-    ): Result<String> {
-        val cacheDir = File(System.getProperty("java.io.tmpdir"))
-        val file = File(cacheDir, fileName)
-        file.writeBytes(imageBytes)
-        return Result.success(file.absolutePath)
+    ): Result<String> = withContext(Dispatchers.IO) {
+        try {
+            val cacheDir = File(System.getProperty("java.io.tmpdir"))
+            val file = File(cacheDir, fileName)
+            file.writeBytes(imageBytes)
+
+            val path = file.absolutePath.replace("\\", "/")
+            val uri = if (path.startsWith("/")) "file://$path" else "file:///$path"
+            Result.success(uri)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     actual override suspend fun shareImage(

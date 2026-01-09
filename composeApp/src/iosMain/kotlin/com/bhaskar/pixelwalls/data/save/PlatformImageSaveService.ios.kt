@@ -1,5 +1,6 @@
 package com.bhaskar.pixelwalls.data.save
 
+import androidx.compose.ui.graphics.vector.path
 import com.bhaskar.pixelwalls.domain.service.ImageFormat
 import com.bhaskar.pixelwalls.domain.service.ImageSaveService
 import kotlinx.cinterop.BetaInteropApi
@@ -10,6 +11,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import platform.Foundation.NSCachesDirectory
 import platform.Foundation.NSData
 import platform.Foundation.NSFileManager
+import platform.Foundation.NSSearchPathForDirectoriesInDomains
 import platform.Foundation.NSUserDomainMask
 import platform.Foundation.create
 import platform.Foundation.writeToFile
@@ -56,16 +58,32 @@ actual class PlatformImageSaveService : ImageSaveService {
         fileName: String,
         imageBytes: ByteArray
     ): Result<String> {
-        val cacheDir = NSFileManager.defaultManager.URLsForDirectory(
-            NSCachesDirectory, NSUserDomainMask
-        ).firstOrNull() as? String ?: return Result.failure(Exception("No cache"))
+        return try {
+            val cacheDir = NSSearchPathForDirectoriesInDomains(
+                directory = NSCachesDirectory,
+                domainMask = NSUserDomainMask,
+                expandTilde = true
+            ).firstOrNull() as? String ?: throw IllegalStateException("Could not find cache directory")
 
-        val filePath = "$cacheDir/$fileName"
-        imageBytes.usePinned { pinned ->
-            NSData.create(bytes = pinned.addressOf(0), length = imageBytes.size.toULong())
-                .writeToFile(filePath, true)
+            val filePath = "$cacheDir/$fileName"
+
+            val data = imageBytes.usePinned { pinned ->
+                NSData.create(
+                    bytes = pinned.addressOf(0),
+                    length = imageBytes.size.toULong()
+                )
+            }
+
+            val saved = data.writeToFile(filePath, true)
+            if (saved) {
+                Result.success(filePath)
+            } else {
+                Result.failure(Exception("Failed to write data to cache"))
+            }
+
+        } catch (e: Exception) {
+            Result.failure(e)
         }
-        return Result.success(filePath)
     }
 
     actual override suspend fun shareImage(
