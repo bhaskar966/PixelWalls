@@ -7,10 +7,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.bhaskar.pixelwalls.domain.WallpaperSetResult
-import com.bhaskar.pixelwalls.domain.WallpaperSetter
-import com.bhaskar.pixelwalls.domain.WallpaperTarget
-import com.bhaskar.pixelwalls.domain.capture.ImageSaveService
+import com.bhaskar.pixelwalls.domain.model.WallpaperSetResult
+import com.bhaskar.pixelwalls.domain.service.WallpaperSetter
+import com.bhaskar.pixelwalls.domain.service.WallpaperTarget
+import com.bhaskar.pixelwalls.domain.service.ImageSaveService
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import kotlin.time.Clock

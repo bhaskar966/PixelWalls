@@ -29,8 +29,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.*
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
-import com.bhaskar.pixelwalls.domain.capture.ImageCaptureService
-import com.bhaskar.pixelwalls.domain.capture.ImageFormat
+import com.bhaskar.pixelwalls.domain.service.ImageCaptureService
 import com.bhaskar.pixelwalls.presentation.editor.controlPanel.ControlPanel
 import com.bhaskar.pixelwalls.presentation.editor.controlPanel.WallpaperActions
 import com.bhaskar.pixelwalls.presentation.editor.controlPanel.components.allShapes
@@ -41,7 +40,6 @@ import fluent.ui.system.icons.regular.ArrowLeft
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
-import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalTime::class)

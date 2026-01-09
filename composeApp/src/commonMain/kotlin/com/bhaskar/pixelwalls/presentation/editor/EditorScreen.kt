@@ -5,13 +5,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import coil3.Uri
-import coil3.toUri
-import com.bhaskar.pixelwalls.domain.ModelStatus
-import com.bhaskar.pixelwalls.domain.ModelStatusService
+import com.bhaskar.pixelwalls.domain.service.ModelStatus
+import com.bhaskar.pixelwalls.domain.service.ModelStatusService
 import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
 import io.github.vinceglb.filekit.path

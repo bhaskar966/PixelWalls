@@ -1,6 +1,5 @@
 package com.bhaskar.pixelwalls.presentation.test
 
-import com.bhaskar.pixelwalls.backgroundremoval.toImageBitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -11,7 +10,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.dp
-import com.bhaskar.pixelwalls.backgroundremoval.createBackgroundRemover
+import com.bhaskar.pixelwalls.data.background.createBackgroundRemover
+import com.bhaskar.pixelwalls.utils.editor.toImageBitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

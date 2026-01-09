@@ -1,16 +1,14 @@
 package com.bhaskar.pixelwalls.di
 
-import com.bhaskar.pixelwalls.backgroundremoval.BackgroundRemover
-import com.bhaskar.pixelwalls.backgroundremoval.createBackgroundRemover
-import com.bhaskar.pixelwalls.data.PlatformImageCaptureService
-import com.bhaskar.pixelwalls.domain.ModelStatusService
-import com.bhaskar.pixelwalls.domain.PlatformModelStatusService
-import com.bhaskar.pixelwalls.domain.PlatformWallpaperSetter
-import com.bhaskar.pixelwalls.domain.WallpaperSetter
-import com.bhaskar.pixelwalls.domain.capture.ImageCaptureService
+import com.bhaskar.pixelwalls.data.background.createBackgroundRemover
+import com.bhaskar.pixelwalls.domain.service.background.BackgroundRemover
+import com.bhaskar.pixelwalls.data.capture.PlatformImageCaptureService
+import com.bhaskar.pixelwalls.data.modelStatus.PlatformModelStatusService
+import com.bhaskar.pixelwalls.data.wallpaper.PlatformWallpaperSetter
+import com.bhaskar.pixelwalls.domain.service.ModelStatusService
+import com.bhaskar.pixelwalls.domain.service.WallpaperSetter
+import com.bhaskar.pixelwalls.domain.service.ImageCaptureService
 import com.bhaskar.pixelwalls.presentation.editor.EditorScreenViewModel
-import okio.FileSystem
-import okio.SYSTEM
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module

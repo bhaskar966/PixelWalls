@@ -2,10 +2,7 @@ package com.bhaskar.pixelwalls
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
-import com.bhaskar.pixelwalls.di.initKoin
-import com.bhaskar.pixelwalls.presentation.main.AppNavigation
-import com.bhaskar.pixelwalls.presentation.main.MainScreen
-import com.bhaskar.pixelwalls.presentation.test.SimpleTestScreen
+import com.bhaskar.pixelwalls.presentation.navigation.AppNavigation
 
 //import org.jetbrains.compose.ui.tooling.preview.Preview
 

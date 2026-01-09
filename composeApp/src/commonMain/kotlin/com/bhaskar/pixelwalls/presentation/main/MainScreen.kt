@@ -16,12 +16,11 @@ import androidx.navigation.compose.rememberNavController
 import com.bhaskar.pixelwalls.presentation.ai.AIScreen
 import com.bhaskar.pixelwalls.presentation.creations.CreationsScreen
 import com.bhaskar.pixelwalls.presentation.editor.EditorScreen
-import com.bhaskar.pixelwalls.presentation.editor.EditorScreenViewModel
 import com.bhaskar.pixelwalls.presentation.editor.EditorState
 import com.bhaskar.pixelwalls.presentation.editor.EditorUiEvents
-import com.bhaskar.pixelwalls.utils.navigationComps.BottomNavItem
-import com.bhaskar.pixelwalls.utils.navigationComps.RootNavGraph
-import com.bhaskar.pixelwalls.utils.navigationComps.BottomNavGraph
+import com.bhaskar.pixelwalls.presentation.navigation.BottomNavItem
+import com.bhaskar.pixelwalls.presentation.navigation.RootNavGraph
+import com.bhaskar.pixelwalls.presentation.navigation.BottomNavGraph
 import fluent.ui.system.icons.FluentIcons
 import fluent.ui.system.icons.filled.Edit
 import fluent.ui.system.icons.filled.Folder
@@ -29,8 +28,6 @@ import fluent.ui.system.icons.filled.Image
 import fluent.ui.system.icons.regular.Edit
 import fluent.ui.system.icons.regular.Folder
 import fluent.ui.system.icons.regular.Image
-import org.koin.compose.koinInject
-import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun MainScreen(
