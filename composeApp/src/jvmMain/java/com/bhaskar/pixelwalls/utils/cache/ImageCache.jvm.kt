@@ -13,7 +13,15 @@ actual class PlatformImageCache : ImageCache {
             val tempDir = System.getProperty("java.io.tmpdir")
             val file = File(tempDir, fileName)
             file.writeBytes(bytes)
-            file.absolutePath
+            val path = file.absolutePath.replace("\\", "/")
+            if (path.startsWith("/")) {
+                // Mac/Linux
+                "file://$path"
+            } else {
+                // Windows
+                "file:///$path"
+            }
+
         }
     }
 }

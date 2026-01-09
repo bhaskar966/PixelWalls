@@ -150,7 +150,7 @@ compose.desktop {
         mainClass = "com.bhaskar.pixelwalls.MainKt"
 
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Exe)
             packageName = "PixelWalls"
             packageVersion = "1.0.0"
 
