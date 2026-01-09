@@ -3,9 +3,9 @@ package com.bhaskar.pixelwalls.di
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
 
-fun initKoin(appDeclaration: KoinAppDeclaration = {}) {
+fun initKoin(appDeclaration: KoinAppDeclaration? = null) {
     startKoin {
-        appDeclaration()
-        modules(appModule, platformModule)
+        appDeclaration?.invoke(this)
+        modules(appModule)
     }
 }

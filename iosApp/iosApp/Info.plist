@@ -2,15 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
     <dict>
-        <!-- Disables the frame rate limit on ProMotion displays -->
-        <key>CADisableMinimumFrameDurationOnPhone</key>
-        <true/>
-
-        <!-- Describes why the app needs access to the user's photo library -->
-        <key>NSPhotoLibraryUsageDescription</key>
-        <string>This app needs access to your photos to select an image for background removal.</string>
-
-        <!-- Add other keys your app might need, like CFBundleIdentifier, etc. -->
         <key>CFBundleIdentifier</key>
         <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
         <key>CFBundleVersion</key>
@@ -19,8 +10,33 @@
         <string>$(EXECUTABLE_NAME)</string>
         <key>CFBundleName</key>
         <string>$(PRODUCT_NAME)</string>
+        <key>CFBundlePackageType</key>
+        <string>APPL</string>
         <key>CFBundleShortVersionString</key>
         <string>1.0</string>
+        <key>LSRequiresIPhoneOS</key>
+        <true/>
 
+        <!-- Disables the frame rate limit on ProMotion displays (120Hz support) -->
+        <key>CADisableMinimumFrameDurationOnPhone</key>
+        <true/>
+
+        <!-- Required for PlatformImageSaveService: Saving to Gallery -->
+        <key>NSPhotoLibraryAddUsageDescription</key>
+        <string>PixelWalls needs permission to save your created 3D wallpapers to your photo library.</string>
+
+        <!-- Required for FileKit: Picking images from Gallery -->
+        <key>NSPhotoLibraryUsageDescription</key>
+        <string>PixelWalls needs access to your photos so you can select a background to edit and create 3D effects.</string>
+
+        <!-- UI Configuration -->
+        <key>UIRequiredDeviceCapabilities</key>
+        <array>
+            <string>arm64</string>
+        </array>
+        <key>UISupportedInterfaceOrientations</key>
+        <array>
+            <string>UIInterfaceOrientationPortrait</string>
+        </array>
     </dict>
 </plist>
