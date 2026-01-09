@@ -4,6 +4,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bhaskar.pixelwalls.backgroundremoval.BackgroundRemover
+import com.bhaskar.pixelwalls.domain.ModelStatusService
 import com.bhaskar.pixelwalls.domain.model.ProcessedImage
 import com.bhaskar.pixelwalls.utils.cache.ImageCache
 import com.bhaskar.pixelwalls.utils.editor.toImageBitmap
@@ -12,16 +13,22 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okio.FileSystem
+import org.koin.compose.koinInject
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 class EditorScreenViewModel(
     private val backgroundRemover: BackgroundRemover,
-    private val imageCache: ImageCache
+    private val imageCache: ImageCache,
+    private val modelStatusService: ModelStatusService
 ): ViewModel() {
 
     private val _editorUiState = MutableStateFlow(EditorState())
     val editorUiState = _editorUiState.asStateFlow()
+
+    init {
+        modelStatusService.checkStatus()
+    }
 
     fun onEvent(event: EditorUiEvents) {
         when(event) {

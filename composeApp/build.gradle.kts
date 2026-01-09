@@ -56,6 +56,8 @@ kotlin {
             implementation(libs.segmentation.selfie)
             // Ktor
             implementation(libs.ktor.client.android)
+            // Play Services
+            implementation(libs.play.services.base)
         }
         commonMain.dependencies {
             implementation(libs.runtime)

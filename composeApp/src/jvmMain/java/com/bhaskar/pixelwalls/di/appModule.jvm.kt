@@ -1,6 +1,7 @@
 package com.bhaskar.pixelwalls.di
 
 import com.bhaskar.pixelwalls.data.PlatformImageSaveService
+import com.bhaskar.pixelwalls.domain.PlatformModelStatusService
 import com.bhaskar.pixelwalls.domain.PlatformWallpaperSetter
 import com.bhaskar.pixelwalls.domain.capture.ImageSaveService
 import com.bhaskar.pixelwalls.utils.cache.ImageCache
@@ -14,4 +15,5 @@ actual val platformModule = module {
     factoryOf(::PlatformImageCache) bind ImageCache::class
     single<ImageSaveService> { PlatformImageSaveService() }
     single { PlatformWallpaperSetter() }
+    single { PlatformModelStatusService() }
 }

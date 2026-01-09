@@ -3,6 +3,8 @@ package com.bhaskar.pixelwalls.di
 import com.bhaskar.pixelwalls.backgroundremoval.BackgroundRemover
 import com.bhaskar.pixelwalls.backgroundremoval.createBackgroundRemover
 import com.bhaskar.pixelwalls.data.PlatformImageCaptureService
+import com.bhaskar.pixelwalls.domain.ModelStatusService
+import com.bhaskar.pixelwalls.domain.PlatformModelStatusService
 import com.bhaskar.pixelwalls.domain.PlatformWallpaperSetter
 import com.bhaskar.pixelwalls.domain.WallpaperSetter
 import com.bhaskar.pixelwalls.domain.capture.ImageCaptureService
@@ -21,10 +23,12 @@ val appModule = module {
     single<BackgroundRemover> { createBackgroundRemover() }
     single<ImageCaptureService> { PlatformImageCaptureService() }
     single<WallpaperSetter> { get<PlatformWallpaperSetter>() }
+    single<ModelStatusService> { get<PlatformModelStatusService>() }
     viewModel {
         EditorScreenViewModel(
             backgroundRemover = get(),
-            imageCache = get()
+            imageCache = get(),
+            modelStatusService = get()
         )
     }
 }

@@ -18,6 +18,7 @@ kotlin = "2.2.21"
 kotlinx-coroutines = "1.10.2"
 material3 = "1.10.0-alpha04"
 onnx = "1.23.2"
+playServicesBase = "18.9.0"
 runtime = "1.10.0-beta01"
 subject-segmentation= "16.0.0-beta1"
 segmentationSelfie = "16.0.0-beta6"
@@ -51,6 +52,7 @@ androidx-lifecycle-runtimeCompose = { module = "org.jetbrains.androidx.lifecycle
 kotlinx-coroutinesSwing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "kotlinx-coroutines"}
+play-services-base = { module = "com.google.android.gms:play-services-base", version.ref = "playServicesBase" }
 ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "ui" }
 ui-tooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "uiTooling" }
 #ONNX

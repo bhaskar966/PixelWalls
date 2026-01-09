@@ -10,6 +10,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil3.Uri
 import coil3.toUri
+import com.bhaskar.pixelwalls.domain.ModelStatus
+import com.bhaskar.pixelwalls.domain.ModelStatusService
 import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
 import io.github.vinceglb.filekit.path
@@ -23,6 +25,10 @@ fun EditorScreen(
     state: EditorState,
     onEvent: (EditorUiEvents) -> Unit
 ) {
+
+    val modelService = koinInject<ModelStatusService>()
+    val modelStatus by modelService.status.collectAsState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -103,7 +109,6 @@ fun EditorScreen(
         val filePicker = rememberFilePickerLauncher(
             type = FileKitType.Image,
             onResult = { file ->
-//                file?.path?.let { onImagePicked(it) }
                 scope.launch {
                     val imageBytes = file?.readBytes()
                     if(imageBytes != null) {
@@ -114,19 +119,76 @@ fun EditorScreen(
             }
         )
 
-        Button(
-            onClick = {
-                // TODO: Open image picker, then navigate
-                filePicker.launch()
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
-        ) {
-            Text(
-                "Pick Image",
-                style = MaterialTheme.typography.titleMedium
-            )
+        when(modelStatus) {
+            ModelStatus.NetworkError -> {
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            "Internet Connection Required",
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            "To download the AI models for background removal, please connect to the internet.",
+                            color = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                        TextButton(
+                            onClick = { modelService.downloadModels() },
+                            modifier = Modifier.align(Alignment.End)
+                        ) {
+                            Text("Retry")
+                        }
+                    }
+                }
+            }
+            ModelStatus.GmsMissing -> {
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        "Google Play Services is required for AI background removal. This device is not supported.",
+                        modifier = Modifier.padding(16.dp),
+                        color = MaterialTheme.colorScheme.onErrorContainer
+                    )
+                }
+            }
+            ModelStatus.Unsupported -> {
+                Text(
+                    "This feature is not supported on iOS yet.",
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center
+                )
+            }
+            else -> {
+                Button(
+                    onClick = {
+                        if(modelStatus is ModelStatus.NotDownloaded){
+                            modelService.downloadModels()
+                        } else {
+                            filePicker.launch()
+                        }
+                    },
+                    enabled = modelStatus !is ModelStatus.Downloading,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                ){
+                    Text(
+                        text = when (modelStatus) {
+                            is ModelStatus.NotDownloaded -> "Download Models (Required)"
+                            is ModelStatus.Downloading -> "Downloading... Please wait"
+                            else -> "Pick Image"
+                        },
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
+
+            }
         }
     }
 }
