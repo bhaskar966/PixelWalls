@@ -123,7 +123,7 @@ android {
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
-        versionName = "1.0"
+        versionName = "0.0.1"
     }
     packaging {
         resources {
@@ -151,8 +151,31 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "com.bhaskar.pixelwalls"
+            packageName = "PixelWalls"
             packageVersion = "1.0.0"
+
+            description = "A multiplatfrom replacement for wallpaper features in Pixel Phones."
+            vendor = "Bhaskar Dey"
+
+            windows {
+                shortcut = true
+                menu = true
+                upgradeUuid = "f3b3a3c0-1234-4321-abcd-1234567890ab"
+                menuGroup = "PixelWalls"
+            }
+
+            linux {
+                shortcut = true
+                menuGroup = "Graphics"
+            }
+
+            macOS {
+                bundleID = "com.bhaskar.pixelwalls"
+                dockName = "PixelWalls"
+                signing {
+                    identity = null
+                }
+            }
         }
     }
 }
