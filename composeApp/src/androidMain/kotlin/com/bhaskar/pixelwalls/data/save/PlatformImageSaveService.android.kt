@@ -10,6 +10,8 @@ import android.provider.MediaStore
 import androidx.core.content.FileProvider
 import com.bhaskar.pixelwalls.domain.service.ImageFormat
 import com.bhaskar.pixelwalls.domain.service.ImageSaveService
+import com.bhaskar.pixelwalls.utils.PixelWallsPaths
+import com.bhaskar.pixelwalls.utils.getPublicPicturesDir
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.BufferedOutputStream
@@ -94,7 +96,7 @@ actual class PlatformImageSaveService(
         val values = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
             put(MediaStore.MediaColumns.MIME_TYPE, format.mimeType)
-            put(MediaStore.MediaColumns.RELATIVE_PATH, "Pictures/PixelWalls")
+            put(MediaStore.MediaColumns.RELATIVE_PATH, "Pictures/${PixelWallsPaths.FOLDER_NAME}")
             put(MediaStore.MediaColumns.IS_PENDING, 1)
         }
 
@@ -125,8 +127,8 @@ actual class PlatformImageSaveService(
         format: ImageFormat
     ): Result<String> {
 
-        val pictureDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-        val pixelWallsDir = File(pictureDir, "PixelWalls")
+        val pictureDir = File(getPublicPicturesDir())
+        val pixelWallsDir = File(pictureDir, PixelWallsPaths.FOLDER_NAME)
         pixelWallsDir.mkdirs()
 
         val file = File(pixelWallsDir, fileName)

@@ -2,6 +2,8 @@ package com.bhaskar.pixelwalls.data.save
 
 import com.bhaskar.pixelwalls.domain.service.ImageFormat
 import com.bhaskar.pixelwalls.domain.service.ImageSaveService
+import com.bhaskar.pixelwalls.utils.PixelWallsPaths
+import com.bhaskar.pixelwalls.utils.getPublicPicturesDir
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.awt.Desktop
@@ -16,7 +18,7 @@ actual class PlatformImageSaveService : ImageSaveService {
         imageBytes: ByteArray,
         format: ImageFormat
     ): Result<String> = withContext(Dispatchers.IO) {
-        val pictureDir = File(System.getProperty("user.home"), "Pictures/PixelWalls")
+        val pictureDir = File(getPublicPicturesDir(), PixelWallsPaths.FOLDER_NAME)
         pictureDir.mkdirs()
 
         val file = File(pictureDir, generateUniqueName(fileName, format.extension))
