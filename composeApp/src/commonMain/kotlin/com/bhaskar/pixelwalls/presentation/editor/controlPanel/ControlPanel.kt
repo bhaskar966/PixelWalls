@@ -44,11 +44,10 @@ fun ControlPanel(
     onShapeChange: (String) -> Unit,
     onColorPickerVisibilityChanged: (Boolean) -> Unit,
     onSubjectToggle: (Boolean) -> Unit,
+    onControlPageChange: (ControlPage) -> Unit,
     modifier: Modifier = Modifier,
     isControlPanelVisible: Boolean = true
 ) {
-
-    var currentPage by remember { mutableStateOf(ControlPage.ADJUST) }
 
     Box(
         modifier = modifier
@@ -92,7 +91,7 @@ fun ControlPanel(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
-                    when(currentPage) {
+                    when(state.currentControlPage) {
                         ControlPage.ADJUST -> {
                             AdjustPanel(
                                 state = state,
@@ -126,9 +125,9 @@ fun ControlPanel(
                 }
 
                 ControlPanelNavigation(
-                    selectedPage = currentPage,
+                    selectedPage = state.currentControlPage,
                     onPageSelected = { newPage ->
-                        currentPage = newPage
+                        onControlPageChange(newPage)
                     }
                 )
 

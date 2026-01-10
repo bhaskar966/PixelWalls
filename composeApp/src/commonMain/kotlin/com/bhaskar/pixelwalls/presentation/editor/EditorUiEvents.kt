@@ -3,6 +3,7 @@ package com.bhaskar.pixelwalls.presentation.editor
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import com.bhaskar.pixelwalls.domain.service.WallpaperTarget
+import com.bhaskar.pixelwalls.presentation.editor.controlPanel.ControlPage
 
 sealed class EditorUiEvents {
 
@@ -25,4 +26,6 @@ sealed class EditorUiEvents {
     data object OnDismissDialog : EditorUiEvents()
 
     data object OnDownloadModel: EditorUiEvents()
+
+    data class OnControlPageChange(val page: ControlPage) : EditorUiEvents()
 }

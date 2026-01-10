@@ -108,6 +108,10 @@ class EditorScreenViewModel(
             }
 
             is EditorUiEvents.OnDownloadModel -> downloadModel()
+
+            is EditorUiEvents.OnControlPageChange -> {
+                _editorUiState.update { it.copy(currentControlPage = event.page) }
+            }
         }
     }
 

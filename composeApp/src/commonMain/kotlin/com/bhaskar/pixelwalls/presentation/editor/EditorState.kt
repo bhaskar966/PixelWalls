@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import com.bhaskar.pixelwalls.domain.model.WallpaperSetResult
 import com.bhaskar.pixelwalls.domain.service.ModelStatus
+import com.bhaskar.pixelwalls.presentation.editor.controlPanel.ControlPage
 import com.bhaskar.pixelwalls.presentation.editor.controlPanel.components.ActionStep
 
 data class EditorState(
@@ -26,6 +27,8 @@ data class EditorState(
 
     val bgColor: Color = Color(0xFFE6B34A),
     val shape: String = "Circle",
+
+    val currentControlPage: ControlPage = ControlPage.ADJUST,
 
     val isControlPanelVisible: Boolean = true,
     val isColorPickerVisible: Boolean = false,

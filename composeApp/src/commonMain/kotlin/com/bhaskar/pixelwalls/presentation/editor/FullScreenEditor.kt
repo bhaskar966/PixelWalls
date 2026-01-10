@@ -70,8 +70,7 @@ fun FullScreenEditor(
             return@Box
         }
 
-        // --- INTERACTION LAYER ---
-        // This invisible layer captures gestures and clicks without being part of the screenshot
+        //  INTERACTION LAYER
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -91,7 +90,7 @@ fun FullScreenEditor(
             capturableCanvas.composable()
         }
 
-        // --- TOP BAR (Back & Save) ---
+        // TOP BAR (Back & Save)
         AnimatedVisibility(
             visible = state.isControlPanelVisible,
             enter = fadeIn(),
@@ -145,7 +144,7 @@ fun FullScreenEditor(
             }
         }
 
-        // --- CONTROL PANEL (Bottom Sliders/Tabs) ---
+        //  CONTROL PANEL (Bottom Sliders/Tabs)
         AnimatedVisibility(
             visible = state.isControlPanelVisible,
             modifier = Modifier.align(Alignment.BottomCenter)
@@ -161,6 +160,7 @@ fun FullScreenEditor(
                     onShapeChange = { onEvent(EditorUiEvents.OnShapeChange(it)) },
                     onColorPickerVisibilityChanged = { onEvent(EditorUiEvents.OnColorPickerToggle(it)) },
                     onSubjectToggle = { onEvent(EditorUiEvents.OnSubjectToggle(it)) },
+                    onControlPageChange = { onEvent(EditorUiEvents.OnControlPageChange(it)) },
                     isControlPanelVisible = state.isControlPanelVisible
                 )
             }
