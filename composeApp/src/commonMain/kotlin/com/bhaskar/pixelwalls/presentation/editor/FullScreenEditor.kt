@@ -53,10 +53,6 @@ fun FullScreenEditor(
     val captureService = koinInject<ImageCaptureService>()
     val scope = rememberCoroutineScope()
 
-    // State for the Wallpaper Actions Dialog
-    var showWallpaperDialog by remember { mutableStateOf(false) }
-    var capturedBytes by remember { mutableStateOf<ByteArray?>(null) }
-
     // 1. Gesture Listener Logic (Pinch & Pan)
     val transformableState = rememberTransformableState { zoomChange, panChange, _ ->
         onEvent(EditorUiEvents.OnScaleChange((state.scale * zoomChange).coerceIn(0.5f, 5f)))
@@ -129,8 +125,7 @@ fun FullScreenEditor(
 
                             // 2. Capture pixels
                             capturableCanvas.capture().onSuccess { bytes ->
-                                capturedBytes = bytes
-                                showWallpaperDialog = true
+                                onEvent(EditorUiEvents.OnCaptured(bytes))
                             }.onFailure {
                                 // Re-show UI if something fails
                                 onEvent(EditorUiEvents.OnControlPanelToggle)
@@ -172,13 +167,18 @@ fun FullScreenEditor(
         }
 
         // --- WALLPAPER ACTIONS DIALOG ---
-        if (showWallpaperDialog && capturedBytes != null) {
+        if (state.showWallpaperDialog && state.capturedBytes != null) {
             WallpaperActions(
-                imageBytes = capturedBytes!!,
-                onDismiss = {
-                    showWallpaperDialog = false
-                    capturedBytes = null
-                    onEvent(EditorUiEvents.OnControlPanelToggle) // Restore UI
+                state = state,
+                onEvent = { event ->
+                    if(event is EditorUiEvents.OnDismissDialog) {
+                        onEvent(event)
+                        if(!state.isControlPanelVisible) {
+                            onEvent(EditorUiEvents.OnControlPanelToggle)
+                        }
+                    } else {
+                        onEvent(event)
+                    }
                 }
             )
         }

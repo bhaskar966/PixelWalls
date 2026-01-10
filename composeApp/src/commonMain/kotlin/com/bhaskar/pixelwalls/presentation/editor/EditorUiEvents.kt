@@ -1,6 +1,8 @@
 package com.bhaskar.pixelwalls.presentation.editor
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.layer.GraphicsLayer
+import com.bhaskar.pixelwalls.domain.service.WallpaperTarget
 
 sealed class EditorUiEvents {
 
@@ -15,5 +17,12 @@ sealed class EditorUiEvents {
     data object OnControlPanelToggle : EditorUiEvents()
     data class OnColorPickerToggle(val visible: Boolean) : EditorUiEvents()
     data class OnSubjectToggle(val enabled: Boolean): EditorUiEvents()
+    data class OnSetWallpaperClick(val target: WallpaperTarget? = null) : EditorUiEvents()
+    data object OnSaveToGalleryClick : EditorUiEvents()
+    data object OnLocateWallpaperClick: EditorUiEvents()
+    data class OnCaptured(val bytes: ByteArray) : EditorUiEvents()
+    data object OnShareClick : EditorUiEvents()
+    data object OnDismissDialog : EditorUiEvents()
 
+    data object OnDownloadModel: EditorUiEvents()
 }

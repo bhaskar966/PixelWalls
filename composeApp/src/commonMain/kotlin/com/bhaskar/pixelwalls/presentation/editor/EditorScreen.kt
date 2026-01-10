@@ -23,9 +23,6 @@ fun EditorScreen(
     onEvent: (EditorUiEvents) -> Unit
 ) {
 
-    val modelService = koinInject<ModelStatusService>()
-    val modelStatus by modelService.status.collectAsState()
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -116,7 +113,7 @@ fun EditorScreen(
             }
         )
 
-        when(modelStatus) {
+        when(state.modelStatus) {
             ModelStatus.NetworkError -> {
                 Card(
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
@@ -134,7 +131,7 @@ fun EditorScreen(
                             color = MaterialTheme.colorScheme.onErrorContainer
                         )
                         TextButton(
-                            onClick = { modelService.downloadModels() },
+                            onClick = { onEvent(EditorUiEvents.OnDownloadModel) },
                             modifier = Modifier.align(Alignment.End)
                         ) {
                             Text("Retry")
@@ -164,19 +161,19 @@ fun EditorScreen(
             else -> {
                 Button(
                     onClick = {
-                        if(modelStatus is ModelStatus.NotDownloaded){
-                            modelService.downloadModels()
+                        if(state.modelStatus is ModelStatus.NotDownloaded){
+                            onEvent(EditorUiEvents.OnDownloadModel)
                         } else {
                             filePicker.launch()
                         }
                     },
-                    enabled = modelStatus !is ModelStatus.Downloading,
+                    enabled = state.modelStatus !is ModelStatus.Downloading,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp)
                 ){
                     Text(
-                        text = when (modelStatus) {
+                        text = when (state.modelStatus) {
                             is ModelStatus.NotDownloaded -> "Download Models (Required)"
                             is ModelStatus.Downloading -> "Downloading... Please wait"
                             else -> "Pick Image"

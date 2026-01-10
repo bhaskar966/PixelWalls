@@ -2,6 +2,9 @@ package com.bhaskar.pixelwalls.presentation.editor
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import com.bhaskar.pixelwalls.domain.model.WallpaperSetResult
+import com.bhaskar.pixelwalls.domain.service.ModelStatus
+import com.bhaskar.pixelwalls.presentation.editor.controlPanel.components.ActionStep
 
 data class EditorState(
     val isLoading: Boolean = false,
@@ -25,5 +28,20 @@ data class EditorState(
     val shape: String = "Circle",
 
     val isControlPanelVisible: Boolean = true,
-    val isColorPickerVisible: Boolean = false
+    val isColorPickerVisible: Boolean = false,
+
+    // Platform Capabilities (Populated on init)
+    val canSetWallpaperDirectly: Boolean = false,
+    val canApplyInDifferentScreens: Boolean = false,
+    val isShareSupported: Boolean = false,
+
+    // Dialog State
+    val showWallpaperDialog: Boolean = false,
+    val currentActionStep: ActionStep = ActionStep.Main,
+    val capturedBytes: ByteArray? = null,
+    val wallpaperResult: WallpaperSetResult? = null,
+    val isOperating: Boolean = false,
+
+    // Model Status
+    val modelStatus: ModelStatus = ModelStatus.Ready
 )
