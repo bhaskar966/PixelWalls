@@ -1,8 +1,11 @@
 package com.bhaskar.pixelwalls.presentation.creations
 
+import androidx.compose.animation.core.copy
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bhaskar.pixelwalls.domain.repository.CreationsRepository
+import com.bhaskar.pixelwalls.domain.service.WallpaperTarget
+import com.bhaskar.pixelwalls.presentation.editor.controlPanel.components.ActionStep
 import com.bhaskar.pixelwalls.utils.PermissionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,6 +21,12 @@ class CreationsViewModel(
 
     private var permissionHandler: PermissionHandler? = null
 
+    init {
+        _creationsUiState.update { it.copy(
+            canApplyInDifferentScreens = repository.canApplyInDifferentScreens(),
+            isShareSupported = repository.isShareSupported()
+        ) }
+    }
 
     fun onEvent(event: CreationsUiEvents) {
         when(event) {
@@ -35,20 +44,38 @@ class CreationsViewModel(
                     it.copy(error = null)
                 }
             }
+
+            is CreationsUiEvents.OnDismissDialog -> {
+                _creationsUiState.update {
+                    it.copy(
+                        showWallpaperDialog = false,
+                        wallpaperResult = null,
+                        currentActionStep = ActionStep.Main
+                    )
+                }
+            }
+            is CreationsUiEvents.OnLocateClick -> locateWallpaper()
+            is CreationsUiEvents.OnPreviewActionClick -> {
+                _creationsUiState.update {
+                    it.copy(
+                        selectedPreviewPath = event.path,
+                        showWallpaperDialog = true
+                    )
+                }
+            }
+            is CreationsUiEvents.OnSetWallpaper -> setWallpaper(event.target)
+            is CreationsUiEvents.OnShareClick -> shareWallpaper()
         }
     }
 
     private fun loadWallpapers() {
         viewModelScope.launch {
-            println("CreationsViewModel" + "Loading wallpapers...")
-
             _creationsUiState.update {
                 it.copy(isLoading = true, error = null)
             }
 
             repository.getSavedWallpaperPaths()
                 .onSuccess { paths ->
-                    println("CreationsViewModel" + "Loaded ${paths.size} wallpapers")
                     _creationsUiState.update {
                         it.copy(
                             wallpapers = paths,
@@ -60,7 +87,6 @@ class CreationsViewModel(
                     }
                 }
                 .onFailure { error ->
-                    println("CreationsViewModel" + "Failed to load: ${error.message}" + error.toString())
                     _creationsUiState.update {
                         it.copy(
                             isLoading = false,
@@ -109,6 +135,55 @@ class CreationsViewModel(
                         it.copy(error = "Failed to delete: ${error.message}")
                     }
                 }
+        }
+    }
+
+    private fun setWallpaper(target: WallpaperTarget?) {
+        val path = creationsUiState.value.selectedPreviewPath ?: return
+        if (target == null && creationsUiState.value.canApplyInDifferentScreens) {
+            _creationsUiState.update { it.copy(currentActionStep = ActionStep.TargetSelection) }
+            return
+        }
+        viewModelScope.launch {
+            _creationsUiState.update { it.copy(isOperating = true) }
+            val result = repository.setWallpaper(path, target)
+            _creationsUiState.update { it.copy(
+                isOperating = false,
+                wallpaperResult = result,
+                currentActionStep = ActionStep.Result
+            ) }
+        }
+    }
+
+    private fun shareWallpaper() {
+        val path = creationsUiState.value.selectedPreviewPath ?: return
+        viewModelScope.launch {
+            _creationsUiState.update { it.copy(isOperating = true) }
+            repository.shareWallpaper(path).onSuccess {
+                _creationsUiState.update { it.copy(isOperating = false) }
+            }.onFailure { error ->
+                _creationsUiState.update {
+                    it.copy(
+                        isOperating = false,
+                        error = error.message ?: "Failed to share"
+                    )
+                }
+            }
+        }
+    }
+
+    private fun locateWallpaper() {
+        val path = creationsUiState.value.selectedPreviewPath ?: return
+        viewModelScope.launch {
+            _creationsUiState.update { it.copy(isOperating = true) }
+            val result = repository.openWallpaperPicker(path)
+            _creationsUiState.update {
+                it.copy(
+                    isOperating = false,
+                    wallpaperResult = result,
+                    currentActionStep = ActionStep.Result
+                )
+            }
         }
     }
 

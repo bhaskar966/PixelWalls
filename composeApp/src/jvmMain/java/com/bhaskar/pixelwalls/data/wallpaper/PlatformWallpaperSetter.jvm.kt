@@ -35,15 +35,26 @@ actual class PlatformWallpaperSetter : WallpaperSetter {
 
     actual override val canApplyWallpaperInDifferentScreens: Boolean = false
 
-    actual override suspend fun setWallpaper(imageBytes: ByteArray, target: WallpaperTarget): WallpaperSetResult = withContext(Dispatchers.IO) {
+    actual override suspend fun setWallpaper(
+        imageBytes: ByteArray,
+        target: WallpaperTarget
+    ): WallpaperSetResult = withContext(Dispatchers.IO) {
         val tempFile = File(System.getProperty("java.io.tmpdir"), "pixelwalls_${System.currentTimeMillis()}.png")
-        tempFile.writeBytes(imageBytes)
-        applyNativeWallpaper(tempFile)
+        try {
+            tempFile.writeBytes(imageBytes)
+            applyNativeWallpaper(tempFile.absolutePath)
+        } catch (e: Exception) {
+            WallpaperSetResult.Error("Failed to write temp file: ${e.message}")
+        }
     }
 
-    actual override suspend fun setWallpaper(filePath: String, target: WallpaperTarget): WallpaperSetResult = withContext(Dispatchers.IO) {
-        applyNativeWallpaper(File(filePath))
+    actual override suspend fun setWallpaper(
+        filePath: String,
+        target: WallpaperTarget
+    ): WallpaperSetResult = withContext(Dispatchers.IO) {
+        applyNativeWallpaper(filePath)
     }
+
 
     actual override fun canSetWallpaperDirectly(): Boolean {
         return when (getOperatingSystem()) {
@@ -53,7 +64,14 @@ actual class PlatformWallpaperSetter : WallpaperSetter {
         }
     }
 
-    private fun applyNativeWallpaper(imageFile: File): WallpaperSetResult {
+    private fun applyNativeWallpaper(path: String): WallpaperSetResult {
+        val cleanPath = path.removePrefix("file://").removePrefix("file:")
+        val imageFile = File(cleanPath)
+
+        if (!imageFile.exists()) {
+            return WallpaperSetResult.Error("Wallpaper file not found at: $cleanPath")
+        }
+
         val os = System.getProperty("os.name").lowercase()
         return when {
             os.contains("win") -> setWindowsWallpaper(imageFile)
@@ -66,19 +84,22 @@ actual class PlatformWallpaperSetter : WallpaperSetter {
     actual override suspend fun openWallpaperPicker(imageBytes: ByteArray): WallpaperSetResult = withContext(Dispatchers.IO) {
         val file = File(System.getProperty("java.io.tmpdir"), "wallpaper_${System.currentTimeMillis()}.png")
         file.writeBytes(imageBytes)
-        showInFolder(file)
+        showInFolder(file.absolutePath)
     }
 
     actual override suspend fun openWallpaperPicker(path: String): WallpaperSetResult = withContext(Dispatchers.IO) {
-        showInFolder(File(path))
+        showInFolder(path)
     }
 
-    private fun showInFolder(file: File): WallpaperSetResult {
+    private fun showInFolder(path: String): WallpaperSetResult {
         return try {
-            // Open the parent folder and highlight the file
+            val cleanPath = path.removePrefix("file://").removePrefix("file:")
+            val file = File(cleanPath)
+
             Desktop.getDesktop().open(file.parentFile)
+
             WallpaperSetResult.UserActionRequired(
-                "Image located at: ${file.absolutePath}\n\nRight-click and select 'Set as Desktop Background'"
+                "Image saved to: ${file.parent}\n\nRight-click the image and select 'Set as Desktop Background'."
             )
         } catch (e: Exception) {
             WallpaperSetResult.Error("Failed to open folder: ${e.message}")
@@ -110,7 +131,7 @@ actual class PlatformWallpaperSetter : WallpaperSetter {
 
     private fun setMacOSWallpaper(imageFile: File): WallpaperSetResult {
         return try {
-            // Use AppleScript
+            // AppleScript
             val script = """
                 tell application "Finder"
                     set desktop picture to POSIX file "${imageFile.absolutePath}"
@@ -153,7 +174,7 @@ actual class PlatformWallpaperSetter : WallpaperSetter {
                     return WallpaperSetResult.Success
                 }
             } catch (e: Exception) {
-                // Try next command
+                e.printStackTrace()
                 continue
             }
         }

@@ -117,7 +117,8 @@ fun BottomNavHost(
         composable<BottomNavGraph.CreationsScreen>() {
             CreationsScreen(
                 state = creationsUiState,
-                onEvent = creationsUiEvents
+                onEvent = creationsUiEvents,
+                rootNavController = rootNavController
             )
         }
     }

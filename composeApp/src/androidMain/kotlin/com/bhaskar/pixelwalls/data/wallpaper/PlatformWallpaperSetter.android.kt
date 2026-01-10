@@ -13,6 +13,7 @@ import com.bhaskar.pixelwalls.domain.service.WallpaperTarget
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import androidx.core.net.toUri
 
 actual class PlatformWallpaperSetter(
     private val contextProvider: () -> Context
@@ -32,7 +33,7 @@ actual class PlatformWallpaperSetter(
         filePath: String,
         target: WallpaperTarget
     ): WallpaperSetResult {
-        val bitmap = BitmapFactory.decodeFile(filePath)
+        val bitmap = decodeBitmapFromAnyPath(path = filePath)
         return performSetWallpaper(bitmap, target)
     }
 
@@ -69,8 +70,7 @@ actual class PlatformWallpaperSetter(
     }
 
     actual override suspend fun openWallpaperPicker(path: String): WallpaperSetResult {
-        val file = File(path)
-        return openPickerInternal(file)
+        return openPickerInternal(getFileFromAnyPath(path))
     }
 
     private fun openPickerInternal(file: File): WallpaperSetResult {
@@ -87,6 +87,42 @@ actual class PlatformWallpaperSetter(
             WallpaperSetResult.Success
         } catch (e: Exception) {
             WallpaperSetResult.Error(e.message ?: "Failed to open picker")
+        }
+    }
+
+    private fun decodeBitmapFromAnyPath(path: String): Bitmap? {
+        val context = contextProvider()
+        return try {
+            if (path.startsWith("content://")) {
+                val uri = path.toUri()
+                context.contentResolver.openInputStream(uri)?.use {
+                    BitmapFactory.decodeStream(it)
+                }
+            } else {
+                BitmapFactory.decodeFile(path)
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    private fun getFileFromAnyPath(path: String): File {
+        val context = contextProvider()
+        if (!path.startsWith("content://")) {
+            return File(path)
+        }
+        val tempFile = File(context.cacheDir, "preview_temp_${System.currentTimeMillis()}.png")
+        return try {
+            val uri = path.toUri()
+            context.contentResolver.openInputStream(uri)?.use { input ->
+                tempFile.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+            tempFile
+        } catch (e: Exception) {
+            e.printStackTrace()
+            tempFile
         }
     }
 

@@ -43,7 +43,11 @@ val appModule = module {
     ) } bind EditorRepository::class
 
     single {
-        CreationsRepositoryImpl(get())
+        CreationsRepositoryImpl(
+            fileService = get(),
+            wallpaperSetter = get(),
+            saveService = get()
+        )
     } bind CreationsRepository::class
 
     viewModel {

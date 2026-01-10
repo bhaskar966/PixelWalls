@@ -7,6 +7,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.bhaskar.pixelwalls.presentation.creations.CreationPreviewScreen
+import com.bhaskar.pixelwalls.presentation.creations.CreationsViewModel
 import com.bhaskar.pixelwalls.presentation.editor.EditorScreenViewModel
 import com.bhaskar.pixelwalls.presentation.editor.FullScreenEditor
 import com.bhaskar.pixelwalls.presentation.main.MainScreen
@@ -20,6 +22,10 @@ fun AppNavigation() {
     val editorViewModel: EditorScreenViewModel = koinViewModel()
     val editorUiState by editorViewModel.editorUiState.collectAsState()
     val editorUiEvents = editorViewModel::onEvent
+
+    val creationsViewModel: CreationsViewModel = koinViewModel()
+    val creationsUiState by creationsViewModel.creationsUiState.collectAsState()
+    val creationsUiEvents = creationsViewModel::onEvent
 
 
     NavHost(
@@ -43,6 +49,16 @@ fun AppNavigation() {
                 navController = rootNavController,
                 state = editorUiState,
                 onEvent = editorUiEvents
+            )
+        }
+
+        composable<RootNavGraph.CreationPreviewScreen>() { navBackStackEntry ->
+            val route = navBackStackEntry.toRoute<RootNavGraph.CreationPreviewScreen>()
+            CreationPreviewScreen(
+                imagePath = route.imagePath,
+                navController = rootNavController,
+                state = creationsUiState,
+                onEvent = creationsUiEvents
             )
         }
 

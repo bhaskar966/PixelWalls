@@ -16,7 +16,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import coil3.compose.SubcomposeAsyncImage
+import com.bhaskar.pixelwalls.presentation.navigation.RootNavGraph
 import fluent.ui.system.icons.FluentIcons
 import fluent.ui.system.icons.regular.ArrowClockwise
 import fluent.ui.system.icons.regular.ArrowWrap
@@ -31,7 +33,8 @@ import fluent.ui.system.icons.regular.Shield
 @Composable
 fun CreationsScreen(
     state: CreationsUiState,
-    onEvent: (CreationsUiEvents) -> Unit
+    onEvent: (CreationsUiEvents) -> Unit,
+    rootNavController: NavHostController
 ) {
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -120,8 +123,8 @@ fun CreationsScreen(
                                 onDelete = {
                                     onEvent(CreationsUiEvents.DeleteCreation(path))
                                 },
-                                onClick = {
-                                    // TODO
+                                onClick = { clickedPath ->
+                                    rootNavController.navigate(RootNavGraph.CreationPreviewScreen(clickedPath))
                                 }
                             )
                         }

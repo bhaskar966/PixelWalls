@@ -22,4 +22,7 @@ sealed class RootNavGraph {
 
     @Serializable
     data class FullScreenEditorScreen(val imageUri: String): RootNavGraph()
+
+    @Serializable
+    data class CreationPreviewScreen(val imagePath: String): RootNavGraph()
 }

@@ -8,6 +8,7 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import com.bhaskar.pixelwalls.domain.service.ImageFormat
 import com.bhaskar.pixelwalls.domain.service.ImageSaveService
 import com.bhaskar.pixelwalls.utils.PixelWallsPaths
@@ -37,8 +38,21 @@ actual class PlatformImageSaveService(
         filePath: String,
         format: ImageFormat
     ): Result<String> = withContext(Dispatchers.IO) {
-        val bytes = File(filePath).readBytes()
-        performSaveToGallery(fileName, bytes, format)
+        val context = contextProvider()
+        try {
+            val bytes = if (filePath.startsWith("content://")) {
+                context
+                    .contentResolver
+                    .openInputStream(filePath.toUri())
+                    ?.use { it.readBytes() }
+                    ?: throw Exception("Could not read stream")
+            } else {
+                File(filePath).readBytes()
+            }
+            performSaveToGallery(fileName, bytes, format)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     private fun performSaveToGallery(
@@ -89,26 +103,33 @@ actual class PlatformImageSaveService(
         imageBytes: ByteArray
     ): Result<Unit> = withContext(Dispatchers.IO) {
         val cachedPath = saveToCache(fileName, imageBytes).getOrNull()
-        performShare(cachedPath?.let { File(it) })
+        performShare(cachedPath)
     }
 
     actual override suspend fun shareImage(
         fileName: String,
         filePath: String
     ): Result<Unit> = withContext(Dispatchers.IO) {
-        performShare(File(filePath))
+        performShare(filePath)
     }
 
 
-    private fun performShare(file: File?): Result<Unit> {
-        if (file == null || !file.exists()) return Result.failure(Exception("File not found"))
+    private fun performShare(path: String?): Result<Unit> {
+        if (path == null) return Result.failure(Exception("Path is null"))
         val context = contextProvider()
+
         return try {
-            val uri = FileProvider.getUriForFile(
-                context,
-                "${context.packageName}.fileprovider",
-                file
-            )
+            val uri = if (path.startsWith("content://")) {
+                path.toUri()
+            } else {
+                val file = File(path)
+                if (!file.exists()) return Result.failure(Exception("File not found"))
+                FileProvider.getUriForFile(
+                    context,
+                    "${context.packageName}.fileprovider",
+                    file
+                )
+            }
 
             val intent = Intent(Intent.ACTION_SEND).apply {
                 type = "image/png"
@@ -119,6 +140,7 @@ actual class PlatformImageSaveService(
             val chooser = Intent.createChooser(intent, "Share Wallpaper").apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
+
             context.startActivity(chooser)
             Result.success(Unit)
         } catch (e: Exception) {
@@ -180,7 +202,6 @@ actual class PlatformImageSaveService(
         )
 
         return Result.success(file.absolutePath)
-
 
     }
 
