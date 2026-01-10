@@ -1,5 +1,6 @@
 package com.bhaskar.pixelwalls.di
 
+import com.bhaskar.pixelwalls.data.file.PlatformFileService
 import com.bhaskar.pixelwalls.data.modelStatus.PlatformModelStatusService
 import com.bhaskar.pixelwalls.data.save.PlatformImageSaveService
 import com.bhaskar.pixelwalls.data.wallpaper.PlatformWallpaperSetter
@@ -10,4 +11,5 @@ actual val platformModule = module {
     single<ImageSaveService> { PlatformImageSaveService() }
     single { PlatformWallpaperSetter() }
     single { PlatformModelStatusService() }
+    single { PlatformFileService() }
 }

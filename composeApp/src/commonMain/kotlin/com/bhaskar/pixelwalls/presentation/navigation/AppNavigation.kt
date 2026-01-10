@@ -16,8 +16,9 @@ import org.koin.compose.viewmodel.koinViewModel
 fun AppNavigation() {
 
     val rootNavController = rememberNavController()
+
     val editorViewModel: EditorScreenViewModel = koinViewModel()
-    val state by editorViewModel.editorUiState.collectAsState()
+    val editorUiState by editorViewModel.editorUiState.collectAsState()
     val editorUiEvents = editorViewModel::onEvent
 
 
@@ -31,7 +32,7 @@ fun AppNavigation() {
             MainScreen(
                 rootNavController = rootNavController,
                 editorUiEvents = editorUiEvents,
-                editorState = state,
+                editorState = editorUiState,
             )
 
         }
@@ -40,7 +41,7 @@ fun AppNavigation() {
             FullScreenEditor(
                 imageUri = navBackStackEntry.toRoute<RootNavGraph.FullScreenEditorScreen>().imageUri,
                 navController = rootNavController,
-                state = state,
+                state = editorUiState,
                 onEvent = editorUiEvents
             )
         }

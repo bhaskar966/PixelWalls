@@ -1,26 +1,36 @@
 package com.bhaskar.pixelwalls.presentation.main
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableIntState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.bhaskar.pixelwalls.presentation.ai.AIScreen
 import com.bhaskar.pixelwalls.presentation.creations.CreationsScreen
+import com.bhaskar.pixelwalls.presentation.creations.CreationsViewModel
 import com.bhaskar.pixelwalls.presentation.editor.EditorScreen
 import com.bhaskar.pixelwalls.presentation.editor.EditorState
 import com.bhaskar.pixelwalls.presentation.editor.EditorUiEvents
 import com.bhaskar.pixelwalls.presentation.navigation.BottomNavItem
 import com.bhaskar.pixelwalls.presentation.navigation.RootNavGraph
 import com.bhaskar.pixelwalls.presentation.navigation.BottomNavGraph
+import com.bhaskar.pixelwalls.utils.rememberPermissionHandler
 import fluent.ui.system.icons.FluentIcons
 import fluent.ui.system.icons.filled.Edit
 import fluent.ui.system.icons.filled.Folder
@@ -28,12 +38,13 @@ import fluent.ui.system.icons.filled.Image
 import fluent.ui.system.icons.regular.Edit
 import fluent.ui.system.icons.regular.Folder
 import fluent.ui.system.icons.regular.Image
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun MainScreen(
     rootNavController: NavHostController,
     editorState: EditorState,
-    editorUiEvents: (EditorUiEvents) -> Unit
+    editorUiEvents: (EditorUiEvents) -> Unit,
 ){
 
     val selectedItem = rememberSaveable {
@@ -50,12 +61,20 @@ fun MainScreen(
             )
         },
         content = {
-            BottomNavHost(
-                bottomNavController = bottomNavController,
-                rootNavController = rootNavController,
-                state = editorState,
-                onEvents = editorUiEvents
-            )
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = it.calculateBottomPadding())
+            ){
+                BottomNavHost(
+                    bottomNavController = bottomNavController,
+                    rootNavController = rootNavController,
+                    editorUiState = editorState,
+                    onEditorEvents = editorUiEvents,
+                )
+
+            }
         }
     )
 }
@@ -64,9 +83,18 @@ fun MainScreen(
 fun BottomNavHost(
     bottomNavController: NavHostController,
     rootNavController: NavHostController,
-    onEvents: (EditorUiEvents) -> Unit,
-    state: EditorState
+    onEditorEvents: (EditorUiEvents) -> Unit,
+    editorUiState: EditorState,
 ) {
+
+    val creationsViewModel: CreationsViewModel = koinViewModel()
+    val creationsUiState by creationsViewModel.creationsUiState.collectAsState()
+    val creationsUiEvents = creationsViewModel::onEvent
+
+    val permissionHandler = rememberPermissionHandler()
+    LaunchedEffect(permissionHandler) {
+        creationsViewModel.setPermissionHandler(permissionHandler)
+    }
 
     NavHost(
         navController = bottomNavController,
@@ -77,8 +105,8 @@ fun BottomNavHost(
                 onImagePicked = { imageUri ->
                     rootNavController.navigate(RootNavGraph.FullScreenEditorScreen(imageUri))
                 },
-                state = state,
-                onEvent = onEvents
+                state = editorUiState,
+                onEvent = onEditorEvents
             )
         }
 
@@ -87,7 +115,10 @@ fun BottomNavHost(
         }
 
         composable<BottomNavGraph.CreationsScreen>() {
-            CreationsScreen()
+            CreationsScreen(
+                state = creationsUiState,
+                onEvent = creationsUiEvents
+            )
         }
     }
 
