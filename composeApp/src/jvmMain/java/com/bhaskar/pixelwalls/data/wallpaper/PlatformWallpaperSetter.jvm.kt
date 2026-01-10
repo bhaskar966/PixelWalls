@@ -35,23 +35,14 @@ actual class PlatformWallpaperSetter : WallpaperSetter {
 
     actual override val canApplyWallpaperInDifferentScreens: Boolean = false
 
-    actual override suspend fun setWallpaper(
-        imageBytes: ByteArray,
-        target: WallpaperTarget
-    ): WallpaperSetResult = withContext(Dispatchers.IO) {
-
-        val tempFile = File(
-            System.getProperty("java.io.tmpdir"),
-            "pixelwalls_${System.currentTimeMillis()}.png"
-        )
+    actual override suspend fun setWallpaper(imageBytes: ByteArray, target: WallpaperTarget): WallpaperSetResult = withContext(Dispatchers.IO) {
+        val tempFile = File(System.getProperty("java.io.tmpdir"), "pixelwalls_${System.currentTimeMillis()}.png")
         tempFile.writeBytes(imageBytes)
+        applyNativeWallpaper(tempFile)
+    }
 
-        when (getOperatingSystem()) {
-            OS.Windows -> setWindowsWallpaper(tempFile)
-            OS.MacOS -> setMacOSWallpaper(tempFile)
-            OS.Linux -> setLinuxWallpaper(tempFile)
-            OS.Unknown -> WallpaperSetResult.Error("Unsupported OS")
-        }
+    actual override suspend fun setWallpaper(filePath: String, target: WallpaperTarget): WallpaperSetResult = withContext(Dispatchers.IO) {
+        applyNativeWallpaper(File(filePath))
     }
 
     actual override fun canSetWallpaperDirectly(): Boolean {
@@ -62,18 +53,32 @@ actual class PlatformWallpaperSetter : WallpaperSetter {
         }
     }
 
-    actual override suspend fun openWallpaperPicker(imageBytes: ByteArray): WallpaperSetResult {
-        val picturesDir = File(System.getProperty("user.home"), "Pictures/PixelWalls")
-        picturesDir.mkdirs()
+    private fun applyNativeWallpaper(imageFile: File): WallpaperSetResult {
+        val os = System.getProperty("os.name").lowercase()
+        return when {
+            os.contains("win") -> setWindowsWallpaper(imageFile)
+            os.contains("mac") -> setMacOSWallpaper(imageFile)
+            os.contains("nix") || os.contains("nux") -> setLinuxWallpaper(imageFile)
+            else -> WallpaperSetResult.Error("Unsupported OS")
+        }
+    }
 
-        val file = File(picturesDir, "wallpaper_${System.currentTimeMillis()}.png")
+    actual override suspend fun openWallpaperPicker(imageBytes: ByteArray): WallpaperSetResult = withContext(Dispatchers.IO) {
+        val file = File(System.getProperty("java.io.tmpdir"), "wallpaper_${System.currentTimeMillis()}.png")
         file.writeBytes(imageBytes)
+        showInFolder(file)
+    }
 
+    actual override suspend fun openWallpaperPicker(path: String): WallpaperSetResult = withContext(Dispatchers.IO) {
+        showInFolder(File(path))
+    }
+
+    private fun showInFolder(file: File): WallpaperSetResult {
         return try {
-            Desktop.getDesktop().open(picturesDir)
+            // Open the parent folder and highlight the file
+            Desktop.getDesktop().open(file.parentFile)
             WallpaperSetResult.UserActionRequired(
-                "Image saved to: ${file.absolutePath}\n\n" +
-                        "Right-click the image and select 'Set as Desktop Background'"
+                "Image located at: ${file.absolutePath}\n\nRight-click and select 'Set as Desktop Background'"
             )
         } catch (e: Exception) {
             WallpaperSetResult.Error("Failed to open folder: ${e.message}")

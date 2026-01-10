@@ -15,9 +15,15 @@ interface WallpaperSetter {
         target: WallpaperTarget = WallpaperTarget.HOME_SCREEN
     ): WallpaperSetResult
 
+    suspend fun setWallpaper(
+        filePath: String,
+        target: WallpaperTarget = WallpaperTarget.HOME_SCREEN
+    ): WallpaperSetResult
+
     fun canSetWallpaperDirectly(): Boolean
 
     suspend fun openWallpaperPicker(imageBytes: ByteArray): WallpaperSetResult
+    suspend fun openWallpaperPicker(path: String): WallpaperSetResult
 
     val canApplyWallpaperInDifferentScreens: Boolean
 }

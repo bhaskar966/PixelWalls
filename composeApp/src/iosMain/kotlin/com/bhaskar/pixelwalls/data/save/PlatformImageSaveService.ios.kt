@@ -1,10 +1,10 @@
 package com.bhaskar.pixelwalls.data.save
 
-import androidx.compose.ui.graphics.vector.path
 import com.bhaskar.pixelwalls.domain.service.ImageFormat
 import com.bhaskar.pixelwalls.domain.service.ImageSaveService
 import com.bhaskar.pixelwalls.utils.PixelWallsPaths
 import com.bhaskar.pixelwalls.utils.getPublicPicturesDir
+import io.github.vinceglb.filekit.utils.toByteArray
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
@@ -16,6 +16,7 @@ import platform.Foundation.NSFileManager
 import platform.Foundation.NSSearchPathForDirectoriesInDomains
 import platform.Foundation.NSUserDomainMask
 import platform.Foundation.create
+import platform.Foundation.dataWithContentsOfFile
 import platform.Foundation.writeToFile
 import platform.Photos.PHAssetChangeRequest
 import platform.Photos.PHAuthorizationStatusAuthorized
@@ -23,20 +24,43 @@ import platform.Photos.PHPhotoLibrary
 import platform.UIKit.UIActivityViewController
 import platform.UIKit.UIApplication
 import platform.UIKit.UIImage
-import platform.UIKit.popoverPresentationController
 import kotlin.coroutines.resume
 
+@OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
 actual class PlatformImageSaveService : ImageSaveService {
 
     actual override val isShareSupported: Boolean = true
 
-    @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
     actual override suspend fun saveToGallery(
         fileName: String,
         imageBytes: ByteArray,
         format: ImageFormat
+    ): Result<String> = performIosSave(
+        bytes = imageBytes,
+        name = fileName,
+        format = format
+    )
+
+    actual override suspend fun saveToGallery(
+        fileName: String,
+        filePath: String,
+        format: ImageFormat
+    ): Result<String> = performIosSave(
+        bytes = NSData
+            .dataWithContentsOfFile(filePath)
+            ?.toByteArray()
+            ?: byteArrayOf(),
+        name = fileName,
+        format = format
+    )
+
+    private suspend fun performIosSave(
+        bytes: ByteArray,
+        name: String,
+        format: ImageFormat
     ): Result<String> = suspendCancellableCoroutine { cont ->
-        val image = createUIImage(imageBytes)
+
+        val image = createUIImage(bytes)
             ?: return@suspendCancellableCoroutine cont.resume(
                 Result.failure(Exception("Invalid image data"))
             )
@@ -47,17 +71,18 @@ actual class PlatformImageSaveService : ImageSaveService {
 
             NSFileManager.defaultManager.createDirectoryAtPath(pixelWallsPaths, true, null, null)
 
-            val filePath = "$pixelWallsPaths/${fileName}.${format.extension}"
-            val data = imageBytes.usePinned { pinned ->
+            val filePath = "$pixelWallsPaths/${name}.${format.extension}"
+            val data = bytes.usePinned { pinned ->
                 NSData.create(
                     bytes = pinned.addressOf(0),
-                    length = imageBytes.size.toULong()
+                    length = bytes.size.toULong()
                 )
             }
 
             data.writeToFile(filePath, atomically = true)
             filePath
         } catch (e: Exception) {
+            e.printStackTrace()
             null
         }
 
@@ -80,10 +105,28 @@ actual class PlatformImageSaveService : ImageSaveService {
         }
     }
 
-    @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
     actual override suspend fun saveToCache(
         fileName: String,
         imageBytes: ByteArray
+    ): Result<String> = performSaveToCache(
+        fileName = fileName,
+        bytes = imageBytes
+    )
+
+    actual override suspend fun saveToCache(
+        fileName: String,
+        filePath: String
+    ): Result<String> = performSaveToCache(
+        fileName = fileName,
+        bytes = NSData
+            .dataWithContentsOfFile(filePath)
+            ?.toByteArray()
+            ?: byteArrayOf()
+    )
+
+    private fun performSaveToCache(
+        fileName: String,
+        bytes: ByteArray
     ): Result<String> {
         return try {
             val cacheDir = NSSearchPathForDirectoriesInDomains(
@@ -94,10 +137,10 @@ actual class PlatformImageSaveService : ImageSaveService {
 
             val filePath = "$cacheDir/$fileName"
 
-            val data = imageBytes.usePinned { pinned ->
+            val data = bytes.usePinned { pinned ->
                 NSData.create(
                     bytes = pinned.addressOf(0),
-                    length = imageBytes.size.toULong()
+                    length = bytes.size.toULong()
                 )
             }
 
@@ -116,34 +159,20 @@ actual class PlatformImageSaveService : ImageSaveService {
     actual override suspend fun shareImage(
         fileName: String,
         imageBytes: ByteArray
-    ): Result<Unit> {
-        val image = createUIImage(imageBytes) ?: return Result.failure(Exception("Invalid image"))
+    ): Result<Unit> = performShare(image = createUIImage(imageBytes))
 
-        val window = UIApplication.sharedApplication.keyWindow
-        val rootViewerController = window?.rootViewController
+    actual override suspend fun shareImage(
+        fileName: String,
+        filePath: String
+    ): Result<Unit> = performShare(image = UIImage.imageWithContentsOfFile(filePath))
 
-        if(rootViewerController != null) {
-
-            val activityController = UIActivityViewController(
-                activityItems = listOf(image),
-                applicationActivities = null
-            )
-
-            activityController.popoverPresentationController?.sourceView = rootViewerController.view
-
-            rootViewerController.presentViewController(
-                viewControllerToPresent = activityController,
-                animated = true,
-                completion = null
-            )
-
-            return Result.success(Unit)
-        }
-
-        return Result.failure(Exception("Root view controller not found"))
+    private fun performShare(image: UIImage?): Result<Unit> {
+        if (image == null) return Result.failure(Exception("Could not load image"))
+        val activityController = UIActivityViewController(listOf(image), null)
+        UIApplication.sharedApplication.keyWindow?.rootViewController?.presentViewController(activityController, true, null)
+        return Result.success(Unit)
     }
 
-    @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
     private fun createUIImage(bytes: ByteArray): UIImage? {
         val data = bytes.usePinned { pinned ->
             NSData.create(

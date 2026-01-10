@@ -29,43 +29,85 @@ actual class PlatformImageSaveService(
         imageBytes: ByteArray,
         format: ImageFormat
     ): Result<String> = withContext(Dispatchers.IO) {
+        performSaveToGallery(fileName, imageBytes, format)
+    }
 
+    actual override suspend fun saveToGallery(
+        fileName: String,
+        filePath: String,
+        format: ImageFormat
+    ): Result<String> = withContext(Dispatchers.IO) {
+        val bytes = File(filePath).readBytes()
+        performSaveToGallery(fileName, bytes, format)
+    }
+
+    private fun performSaveToGallery(
+        fileName: String,
+        bytes: ByteArray,
+        format: ImageFormat
+    ): Result<String> {
         val context = contextProvider()
         val finalName = generateUniqueName(fileName, format.extension)
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            saveToMediaStore(context, finalName, imageBytes, format)
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            saveToMediaStore(context, finalName, bytes, format)
         } else {
-            saveToLegacyStorage(context, finalName, imageBytes, format)
+            saveToLegacyStorage(context, finalName, bytes, format)
         }
-
     }
 
     actual override suspend fun saveToCache(
         fileName: String,
         imageBytes: ByteArray
+    ): Result<String> = withContext(Dispatchers.IO) {
+        performSaveToCache(fileName, imageBytes)
+    }
+
+    actual override suspend fun saveToCache(
+        fileName: String,
+        filePath: String
+    ): Result<String> = withContext(Dispatchers.IO) {
+        performSaveToCache(fileName, File(filePath).readBytes())
+    }
+
+    private fun performSaveToCache(
+        fileName: String,
+        bytes: ByteArray
     ): Result<String> {
-        return withContext(Dispatchers.IO){
+        return try {
             val context = contextProvider()
             val cacheFile = File(context.cacheDir, fileName)
-            cacheFile.writeBytes(imageBytes)
+            cacheFile.writeBytes(bytes)
             Result.success(cacheFile.absolutePath)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 
     actual override suspend fun shareImage(
         fileName: String,
         imageBytes: ByteArray
-    ): Result<Unit> {
-        return withContext(Dispatchers.IO) {
-            val context = contextProvider()
-            val cacheFile = File(context.cacheDir, fileName)
-            cacheFile.writeBytes(imageBytes)
+    ): Result<Unit> = withContext(Dispatchers.IO) {
+        val cachedPath = saveToCache(fileName, imageBytes).getOrNull()
+        performShare(cachedPath?.let { File(it) })
+    }
 
+    actual override suspend fun shareImage(
+        fileName: String,
+        filePath: String
+    ): Result<Unit> = withContext(Dispatchers.IO) {
+        performShare(File(filePath))
+    }
+
+
+    private fun performShare(file: File?): Result<Unit> {
+        if (file == null || !file.exists()) return Result.failure(Exception("File not found"))
+        val context = contextProvider()
+        return try {
             val uri = FileProvider.getUriForFile(
                 context,
                 "${context.packageName}.fileprovider",
-                cacheFile
+                file
             )
 
             val intent = Intent(Intent.ACTION_SEND).apply {
@@ -74,14 +116,13 @@ actual class PlatformImageSaveService(
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
 
-            context.startActivity(
-                Intent.createChooser(
-                    intent, "Share Wallpaper"
-                ).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-            )
+            val chooser = Intent.createChooser(intent, "Share Wallpaper").apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(chooser)
             Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 

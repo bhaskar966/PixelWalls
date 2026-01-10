@@ -10,7 +10,13 @@ expect class PlatformWallpaperSetter: WallpaperSetter {
         target: WallpaperTarget
     ): WallpaperSetResult
 
+    override suspend fun setWallpaper(
+        filePath: String,
+        target: WallpaperTarget
+    ): WallpaperSetResult
+
     override fun canSetWallpaperDirectly(): Boolean
     override suspend fun openWallpaperPicker(imageBytes: ByteArray): WallpaperSetResult
+    override suspend fun openWallpaperPicker(path: String): WallpaperSetResult
     override val canApplyWallpaperInDifferentScreens: Boolean
 }

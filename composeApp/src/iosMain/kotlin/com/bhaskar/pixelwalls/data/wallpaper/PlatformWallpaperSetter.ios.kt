@@ -24,23 +24,38 @@ actual class PlatformWallpaperSetter : WallpaperSetter {
         imageBytes: ByteArray,
         target: WallpaperTarget
     ): WallpaperSetResult {
-        return saveToPhotosAndProvideInstructions(imageBytes)
+        return saveToPhotosAndProvideInstructions(createUIImage(imageBytes))
+    }
+
+    actual override suspend fun setWallpaper(
+        filePath: String,
+        target: WallpaperTarget
+    ): WallpaperSetResult {
+        return saveToPhotosAndProvideInstructions(
+            UIImage.imageWithContentsOfFile(path = filePath)
+        )
     }
 
     actual override fun canSetWallpaperDirectly(): Boolean = false
 
     actual override suspend fun openWallpaperPicker(imageBytes: ByteArray): WallpaperSetResult {
-        return saveToPhotosAndProvideInstructions(imageBytes)
+        return saveToPhotosAndProvideInstructions(createUIImage(bytes = imageBytes))
+    }
+
+    actual override suspend fun openWallpaperPicker(path: String): WallpaperSetResult {
+        return saveToPhotosAndProvideInstructions(
+            UIImage.imageWithContentsOfFile(path = path)
+        )
     }
 
     private suspend fun saveToPhotosAndProvideInstructions(
-        imageBytes: ByteArray
+        image: UIImage?
     ): WallpaperSetResult = suspendCancellableCoroutine { cont ->
 
-        val image = createUIImage(imageBytes)
-            ?: return@suspendCancellableCoroutine cont.resume(
-                WallpaperSetResult.Error("Failed to create image")
-            )
+        if (image == null) {
+            cont.resume(WallpaperSetResult.Error("Failed to load image"))
+            return@suspendCancellableCoroutine
+        }
 
         PHPhotoLibrary.requestAuthorization { status ->
             if (status != PHAuthorizationStatusAuthorized) {
