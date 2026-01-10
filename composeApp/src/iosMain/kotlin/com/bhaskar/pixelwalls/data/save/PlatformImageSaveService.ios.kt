@@ -3,6 +3,8 @@ package com.bhaskar.pixelwalls.data.save
 import androidx.compose.ui.graphics.vector.path
 import com.bhaskar.pixelwalls.domain.service.ImageFormat
 import com.bhaskar.pixelwalls.domain.service.ImageSaveService
+import com.bhaskar.pixelwalls.utils.PixelWallsPaths
+import com.bhaskar.pixelwalls.utils.getPublicPicturesDir
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
@@ -28,6 +30,7 @@ actual class PlatformImageSaveService : ImageSaveService {
 
     actual override val isShareSupported: Boolean = true
 
+    @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
     actual override suspend fun saveToGallery(
         fileName: String,
         imageBytes: ByteArray,
@@ -38,17 +41,40 @@ actual class PlatformImageSaveService : ImageSaveService {
                 Result.failure(Exception("Invalid image data"))
             )
 
+        val internalSavedPath = try {
+            val baseDir = getPublicPicturesDir()
+            val pixelWallsPaths = "$baseDir/${PixelWallsPaths.FOLDER_NAME}"
+
+            NSFileManager.defaultManager.createDirectoryAtPath(pixelWallsPaths, true, null, null)
+
+            val filePath = "$pixelWallsPaths/${fileName}.${format.extension}"
+            val data = imageBytes.usePinned { pinned ->
+                NSData.create(
+                    bytes = pinned.addressOf(0),
+                    length = imageBytes.size.toULong()
+                )
+            }
+
+            data.writeToFile(filePath, atomically = true)
+            filePath
+        } catch (e: Exception) {
+            null
+        }
+
         PHPhotoLibrary.requestAuthorization { status ->
             if(status != PHAuthorizationStatusAuthorized) {
-                cont.resume(Result.failure(Exception("Permission not granted")))
+                cont.resume(Result.success(internalSavedPath ?: "internal://saved"))
                 return@requestAuthorization
             }
 
             PHPhotoLibrary.sharedPhotoLibrary().performChanges({
                 PHAssetChangeRequest.creationRequestForAssetFromImage(image)
             }) { success, error ->
-                if (success) cont.resume(Result.success("photos://saved"))
-                else cont.resume(Result.failure(Exception(error?.localizedDescription ?: "Unknown error")))
+                if (success) {
+                    cont.resume(Result.success(internalSavedPath ?: "photos://saved"))
+                } else {
+                    cont.resume(Result.failure(Exception(error?.localizedDescription ?: "Gallery save failed")))
+                }
             }
 
         }
