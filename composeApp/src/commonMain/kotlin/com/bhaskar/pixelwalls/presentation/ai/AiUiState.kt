@@ -12,6 +12,7 @@ data class AiUiState(
     val isGenerating: Boolean = false,
     val generatedImageBytes: ByteArray? = null,
     val error: String? = null,
+    val canUseAi: Boolean = false,
 
     val isShareSupported: Boolean = false,
     val canApplyInDifferentScreens: Boolean = false,

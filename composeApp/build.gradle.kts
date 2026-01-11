@@ -1,5 +1,7 @@
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.konan.properties.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -8,6 +10,7 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
     alias(libs.plugins.seralization)
+    alias(libs.plugins.buildkonfig)
 }
 
 kotlin {
@@ -180,5 +183,24 @@ compose.desktop {
                 }
             }
         }
+    }
+}
+
+buildkonfig {
+    packageName = "com.bhaskar.pixelwalls"
+    val localProperties = Properties().apply {
+        val localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            localPropertiesFile.inputStream().use { load(it) }
+        }
+    }
+
+
+    val geminiApiKey: String = localProperties.getProperty("GEMINI_API_KEY")
+        ?: System.getenv("GEMINI_API_KEY")
+        ?: ""
+
+    defaultConfigs {
+        buildConfigField(STRING, "GEMINI_API_KEY", geminiApiKey)
     }
 }

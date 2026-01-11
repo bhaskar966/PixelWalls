@@ -1,5 +1,6 @@
 package com.bhaskar.pixelwalls.data.repository
 
+import com.bhaskar.pixelwalls.BuildKonfig
 import com.bhaskar.pixelwalls.domain.model.AiAspectRatio
 import com.bhaskar.pixelwalls.domain.repository.AiRepository
 import com.bhaskar.pixelwalls.utils.Constants
@@ -26,13 +27,15 @@ class AiRepositoryImpl(
     private val httpClient: HttpClient
 ): AiRepository {
 
-    private val API_KEY = "API_KEY"
-    private val URL = "${Constants.GEMINI_API_URL}$API_KEY"
+    private val apiKey = BuildKonfig.GEMINI_API_KEY
 
+    override fun canUseAi(): Boolean = apiKey.isNotBlank()
 
     override suspend fun generateImage(prompt: String, aspectRatio: AiAspectRatio): Result<ByteArray> {
 
         return try {
+
+            val url = "${Constants.GEMINI_API_URL}$apiKey"
 
             println("Prompt: $prompt")
 
@@ -57,7 +60,7 @@ class AiRepositoryImpl(
 
             println("Request Body: $requestBody")
 
-            val response = httpClient.post(URL) {
+            val response = httpClient.post(url) {
                 contentType(ContentType.Application.Json)
                 setBody(requestBody)
             }

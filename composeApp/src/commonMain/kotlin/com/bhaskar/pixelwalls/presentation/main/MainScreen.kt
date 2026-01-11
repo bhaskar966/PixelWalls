@@ -22,6 +22,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.bhaskar.pixelwalls.presentation.ai.AIScreen
+import com.bhaskar.pixelwalls.presentation.ai.AiUiState
 import com.bhaskar.pixelwalls.presentation.creations.CreationsScreen
 import com.bhaskar.pixelwalls.presentation.creations.CreationsViewModel
 import com.bhaskar.pixelwalls.presentation.editor.EditorScreen
@@ -45,6 +46,7 @@ fun MainScreen(
     rootNavController: NavHostController,
     editorState: EditorState,
     editorUiEvents: (EditorUiEvents) -> Unit,
+    aiUiState: AiUiState
 ){
 
     val selectedItem = rememberSaveable {
@@ -72,6 +74,7 @@ fun MainScreen(
                     rootNavController = rootNavController,
                     editorUiState = editorState,
                     onEditorEvents = editorUiEvents,
+                    aiUiState = aiUiState
                 )
 
             }
@@ -85,6 +88,7 @@ fun BottomNavHost(
     rootNavController: NavHostController,
     onEditorEvents: (EditorUiEvents) -> Unit,
     editorUiState: EditorState,
+    aiUiState: AiUiState
 ) {
 
     val creationsViewModel: CreationsViewModel = koinViewModel()
@@ -114,7 +118,8 @@ fun BottomNavHost(
             AIScreen(
                 onGenerateClick = {
                     rootNavController.navigate(RootNavGraph.AiGenerationScreen)
-                }
+                },
+                canUseAi = aiUiState.canUseAi
             )
         }
 

@@ -34,7 +34,8 @@ class AiViewModel(
                 canApplyInDifferentScreens = editorRepository.canApplyWallpaperInDifferentScreens(),
                 selectedTemplate = initialTemplate,
                 promptSelection = initialSelection,
-                aspectRatio = platformAiAspectRatio()
+                aspectRatio = platformAiAspectRatio(),
+                canUseAi = aiRepository.canUseAi()
             )
         }
         updatePromptText()

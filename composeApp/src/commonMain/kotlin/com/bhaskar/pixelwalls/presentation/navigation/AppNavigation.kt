@@ -45,6 +45,7 @@ fun AppNavigation() {
                 rootNavController = rootNavController,
                 editorUiEvents = editorUiEvents,
                 editorState = editorUiState,
+                aiUiState = aiUiState
             )
 
         }
