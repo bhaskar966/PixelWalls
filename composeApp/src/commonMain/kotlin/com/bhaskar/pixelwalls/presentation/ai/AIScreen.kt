@@ -8,7 +8,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun AIScreen() {
+fun AIScreen(
+    onGenerateClick: () -> Unit
+) {
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -23,5 +25,9 @@ fun AIScreen() {
             "Generate wallpapers with AI\n(Coming soon)",
             style = MaterialTheme.typography.bodyLarge
         )
+
+        Button(onClick = onGenerateClick) {
+            Text("Generate AI Wallpaper")
+        }
     }
 }

@@ -25,4 +25,7 @@ sealed class RootNavGraph {
 
     @Serializable
     data class CreationPreviewScreen(val imagePath: String): RootNavGraph()
+
+    @Serializable
+    data object AiGenerationScreen : RootNavGraph()
 }

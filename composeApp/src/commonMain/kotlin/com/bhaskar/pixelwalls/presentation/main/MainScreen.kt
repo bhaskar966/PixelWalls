@@ -111,7 +111,11 @@ fun BottomNavHost(
         }
 
         composable<BottomNavGraph.AIScreen>() {
-            AIScreen()
+            AIScreen(
+                onGenerateClick = {
+                    rootNavController.navigate(RootNavGraph.AiGenerationScreen)
+                }
+            )
         }
 
         composable<BottomNavGraph.CreationsScreen>() {

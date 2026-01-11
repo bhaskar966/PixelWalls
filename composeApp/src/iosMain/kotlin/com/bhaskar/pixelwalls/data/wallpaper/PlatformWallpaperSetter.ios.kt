@@ -18,7 +18,7 @@ import kotlin.coroutines.resume
 
 actual class PlatformWallpaperSetter : WallpaperSetter {
 
-    actual override val canApplyWallpaperInDifferentScreens: Boolean = true
+    actual override val canApplyWallpaperInDifferentScreens: Boolean = false
 
     actual override suspend fun setWallpaper(
         imageBytes: ByteArray,

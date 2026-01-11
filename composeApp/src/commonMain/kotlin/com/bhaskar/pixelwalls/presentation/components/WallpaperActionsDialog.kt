@@ -23,7 +23,7 @@ fun WallpaperActionsDialog(
     onSetWallpaper: (WallpaperTarget?) -> Unit,
     onShare: () -> Unit,
     onSaveToGallery: () -> Unit = {},
-    onLocate: () -> Unit
+    onLocate: () -> Unit = {}
 ) {
     BasicAlertDialog(
         onDismissRequest = { if (!isOperating) onDismiss() },
@@ -130,15 +130,15 @@ fun WallpaperActionsDialog(
                             modifier = Modifier.padding(vertical = 8.dp)
                         )
 
-                        if (wallpaperResult is WallpaperSetResult.UserActionRequired &&
-                            wallpaperResult.instructions.contains("saved to")) {
-                            Button(
-                                onClick = onLocate,
-                                modifier = Modifier.fillMaxWidth().height(48.dp)
-                            ) {
-                                Text("Locate Wallpaper")
-                            }
-                        }
+//                        if (wallpaperResult is WallpaperSetResult.UserActionRequired &&
+//                            wallpaperResult.instructions.contains("saved to")) {
+//                            Button(
+//                                onClick = onLocate,
+//                                modifier = Modifier.fillMaxWidth().height(48.dp)
+//                            ) {
+//                                Text("Locate Wallpaper")
+//                            }
+//                        }
 
                         Button(
                             onClick = { onDismiss() },

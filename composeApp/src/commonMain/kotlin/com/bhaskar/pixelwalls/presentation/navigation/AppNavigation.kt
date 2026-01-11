@@ -7,6 +7,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.bhaskar.pixelwalls.presentation.ai.AiGenerationScreen
+import com.bhaskar.pixelwalls.presentation.ai.AiViewModel
 import com.bhaskar.pixelwalls.presentation.creations.CreationPreviewScreen
 import com.bhaskar.pixelwalls.presentation.creations.CreationsViewModel
 import com.bhaskar.pixelwalls.presentation.editor.EditorScreenViewModel
@@ -26,6 +28,10 @@ fun AppNavigation() {
     val creationsViewModel: CreationsViewModel = koinViewModel()
     val creationsUiState by creationsViewModel.creationsUiState.collectAsState()
     val creationsUiEvents = creationsViewModel::onEvent
+
+    val aiViewModel: AiViewModel = koinViewModel()
+    val aiUiState by aiViewModel.aiScreenUiState.collectAsState()
+    val aiUiEvents = aiViewModel::onEvent
 
 
     NavHost(
@@ -59,6 +65,14 @@ fun AppNavigation() {
                 navController = rootNavController,
                 state = creationsUiState,
                 onEvent = creationsUiEvents
+            )
+        }
+
+        composable<RootNavGraph.AiGenerationScreen> {
+            AiGenerationScreen(
+                state = aiUiState,
+                onEvent = aiUiEvents,
+                navController = rootNavController
             )
         }
 

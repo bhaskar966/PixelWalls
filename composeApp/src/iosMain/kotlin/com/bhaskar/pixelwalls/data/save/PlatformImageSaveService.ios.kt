@@ -8,12 +8,18 @@ import io.github.vinceglb.filekit.utils.toByteArray
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
+import kotlinx.cinterop.memScoped
+import kotlinx.cinterop.useContents
 import kotlinx.cinterop.usePinned
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import platform.Foundation.NSCachesDirectory
 import platform.Foundation.NSData
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSSearchPathForDirectoriesInDomains
+import platform.Foundation.NSTemporaryDirectory
+import platform.Foundation.NSThread
 import platform.Foundation.NSUserDomainMask
 import platform.Foundation.create
 import platform.Foundation.dataWithContentsOfFile
@@ -24,6 +30,9 @@ import platform.Photos.PHPhotoLibrary
 import platform.UIKit.UIActivityViewController
 import platform.UIKit.UIApplication
 import platform.UIKit.UIImage
+import platform.UIKit.popoverPresentationController
+import platform.darwin.dispatch_async
+import platform.darwin.dispatch_get_main_queue
 import kotlin.coroutines.resume
 
 @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
@@ -159,7 +168,13 @@ actual class PlatformImageSaveService : ImageSaveService {
     actual override suspend fun shareImage(
         fileName: String,
         imageBytes: ByteArray
-    ): Result<Unit> = performShare(image = createUIImage(imageBytes))
+    ): Result<Unit> = withContext(Dispatchers.Main) {
+        val image = createUIImage(imageBytes)
+            ?: return@withContext Result.failure(Exception("Failed to decode image for sharing"))
+
+        return@withContext performShare(image)
+    }
+
 
     actual override suspend fun shareImage(
         fileName: String,
@@ -168,19 +183,39 @@ actual class PlatformImageSaveService : ImageSaveService {
 
     private fun performShare(image: UIImage?): Result<Unit> {
         if (image == null) return Result.failure(Exception("Could not load image"))
-        val activityController = UIActivityViewController(listOf(image), null)
-        UIApplication.sharedApplication.keyWindow?.rootViewController?.presentViewController(activityController, true, null)
-        return Result.success(Unit)
+
+        val window = UIApplication.sharedApplication.keyWindow
+        val rootViewController = window?.rootViewController
+
+        if (rootViewController != null) {
+            val activityController = UIActivityViewController(
+                activityItems = listOf(image),
+                applicationActivities = null
+            )
+
+            activityController.popoverPresentationController?.sourceView = rootViewController.view
+
+            rootViewController.presentViewController(
+                viewControllerToPresent = activityController,
+                animated = true,
+                completion = null
+            )
+            return Result.success(Unit)
+        }
+
+        return Result.failure(Exception("Unable to find iOS RootViewController"))
     }
 
     private fun createUIImage(bytes: ByteArray): UIImage? {
-        val data = bytes.usePinned { pinned ->
-            NSData.create(
+        if (bytes.isEmpty()) return null
+
+        return bytes.usePinned { pinned ->
+            val data = NSData.create(
                 bytes = pinned.addressOf(0),
                 length = bytes.size.toULong()
             )
+            UIImage.imageWithData(data)
         }
-        return UIImage.imageWithData(data)
     }
 
 }
