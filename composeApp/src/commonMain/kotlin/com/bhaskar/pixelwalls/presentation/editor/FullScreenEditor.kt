@@ -188,7 +188,11 @@ fun FullScreenEditor(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun EditorCanvasOnly(state: EditorState) {
-    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+    BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.surface)
+    ) {
         val containerW = constraints.maxWidth.toFloat()
         val containerH = constraints.maxHeight.toFloat()
         val minDim = minOf(containerW, containerH)
