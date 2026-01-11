@@ -24,28 +24,24 @@ actual class PlatformWallpaperSetter : WallpaperSetter {
         imageBytes: ByteArray,
         target: WallpaperTarget
     ): WallpaperSetResult {
-        return saveToPhotosAndProvideInstructions(createUIImage(imageBytes))
+        return provideIosInstructions()
     }
 
     actual override suspend fun setWallpaper(
         filePath: String,
         target: WallpaperTarget
     ): WallpaperSetResult {
-        return saveToPhotosAndProvideInstructions(
-            UIImage.imageWithContentsOfFile(path = filePath)
-        )
+        return provideIosInstructions()
     }
 
     actual override fun canSetWallpaperDirectly(): Boolean = false
 
     actual override suspend fun openWallpaperPicker(imageBytes: ByteArray): WallpaperSetResult {
-        return saveToPhotosAndProvideInstructions(createUIImage(bytes = imageBytes))
+        return provideIosInstructions()
     }
 
     actual override suspend fun openWallpaperPicker(path: String): WallpaperSetResult {
-        return saveToPhotosAndProvideInstructions(
-            UIImage.imageWithContentsOfFile(path = path)
-        )
+        return provideIosInstructions()
     }
 
     private suspend fun saveToPhotosAndProvideInstructions(
@@ -91,6 +87,20 @@ actual class PlatformWallpaperSetter : WallpaperSetter {
                 }
             }
         }
+    }
+
+    private fun provideIosInstructions(): WallpaperSetResult {
+        val instructions = """
+            To set this as your wallpaper:
+            
+            1. Open the Photos app
+            2. Find this image in your library
+            3. Tap the Share button (bottom left)
+            4. Scroll down and select "Use as Wallpaper"
+            5. Adjust the position and tap "Set"
+        """.trimIndent()
+
+        return WallpaperSetResult.UserActionRequired(instructions)
     }
 
     @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
