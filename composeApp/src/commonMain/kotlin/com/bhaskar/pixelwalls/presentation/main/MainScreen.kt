@@ -1,5 +1,9 @@
 package com.bhaskar.pixelwalls.presentation.main
 
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -104,7 +108,10 @@ fun BottomNavHost(
         navController = bottomNavController,
         startDestination = BottomNavGraph.EditorScreen
     ) {
-        composable<BottomNavGraph.EditorScreen>() {
+        composable<BottomNavGraph.EditorScreen>(
+            enterTransition = { slideInHorizontally() + fadeIn() },
+            exitTransition = { slideOutHorizontally() + fadeOut() }
+        ) {
             EditorScreen(
                 onImagePicked = { imageUri ->
                     rootNavController.navigate(RootNavGraph.FullScreenEditorScreen(imageUri))
@@ -114,7 +121,10 @@ fun BottomNavHost(
             )
         }
 
-        composable<BottomNavGraph.AIScreen>() {
+        composable<BottomNavGraph.AIScreen>(
+            enterTransition = { slideInHorizontally() + fadeIn() },
+            exitTransition = { slideOutHorizontally() + fadeOut() }
+        ) {
             AIScreen(
                 onGenerateClick = {
                     rootNavController.navigate(RootNavGraph.AiGenerationScreen)
@@ -123,7 +133,10 @@ fun BottomNavHost(
             )
         }
 
-        composable<BottomNavGraph.CreationsScreen>() {
+        composable<BottomNavGraph.CreationsScreen>(
+            enterTransition = { slideInHorizontally() + fadeIn() },
+            exitTransition = { slideOutHorizontally() + fadeOut() }
+        ) {
             CreationsScreen(
                 state = creationsUiState,
                 onEvent = creationsUiEvents,

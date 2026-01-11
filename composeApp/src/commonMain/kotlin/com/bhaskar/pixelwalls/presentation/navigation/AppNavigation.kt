@@ -1,5 +1,10 @@
 package com.bhaskar.pixelwalls.presentation.navigation
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -39,7 +44,20 @@ fun AppNavigation() {
         startDestination = RootNavGraph.MainScreen
     ) {
 
-        composable<RootNavGraph.MainScreen>() {
+        composable<RootNavGraph.MainScreen>(
+            enterTransition = {
+                slideInVertically(
+                    initialOffsetY = { it },
+                    animationSpec = tween(durationMillis = 300)
+                )
+            },
+            exitTransition = {
+                slideOutVertically(
+                    targetOffsetY = { it },
+                    animationSpec = tween(durationMillis = 300)
+                )
+            }
+        ) {
 
             MainScreen(
                 rootNavController = rootNavController,
@@ -50,7 +68,20 @@ fun AppNavigation() {
 
         }
 
-        composable<RootNavGraph.FullScreenEditorScreen>() { navBackStackEntry ->
+        composable<RootNavGraph.FullScreenEditorScreen>(
+            enterTransition = {
+                slideInVertically(
+                    initialOffsetY = { it },
+                    animationSpec = tween(durationMillis = 300)
+                )
+            },
+            exitTransition = {
+                slideOutVertically(
+                    targetOffsetY = { it },
+                    animationSpec = tween(durationMillis = 300)
+                )
+            }
+        ) { navBackStackEntry ->
             FullScreenEditor(
                 imageUri = navBackStackEntry.toRoute<RootNavGraph.FullScreenEditorScreen>().imageUri,
                 navController = rootNavController,
@@ -59,7 +90,20 @@ fun AppNavigation() {
             )
         }
 
-        composable<RootNavGraph.CreationPreviewScreen>() { navBackStackEntry ->
+        composable<RootNavGraph.CreationPreviewScreen>(
+            enterTransition = {
+                slideInVertically(
+                    initialOffsetY = { it },
+                    animationSpec = tween(durationMillis = 300)
+                )
+            },
+            exitTransition = {
+                slideOutVertically(
+                    targetOffsetY = { it },
+                    animationSpec = tween(durationMillis = 300)
+                )
+            }
+        ) { navBackStackEntry ->
             val route = navBackStackEntry.toRoute<RootNavGraph.CreationPreviewScreen>()
             CreationPreviewScreen(
                 imagePath = route.imagePath,
@@ -69,7 +113,20 @@ fun AppNavigation() {
             )
         }
 
-        composable<RootNavGraph.AiGenerationScreen> {
+        composable<RootNavGraph.AiGenerationScreen>(
+            enterTransition = {
+                slideInVertically(
+                    initialOffsetY = { it },
+                    animationSpec = tween(durationMillis = 300)
+                )
+            },
+            exitTransition = {
+                slideOutVertically(
+                    targetOffsetY = { it },
+                    animationSpec = tween(durationMillis = 300)
+                )
+            }
+        ) {
             AiGenerationScreen(
                 state = aiUiState,
                 onEvent = aiUiEvents,

@@ -21,7 +21,7 @@ import coil3.compose.SubcomposeAsyncImage
 import com.bhaskar.pixelwalls.presentation.navigation.RootNavGraph
 import fluent.ui.system.icons.FluentIcons
 import fluent.ui.system.icons.regular.ArrowClockwise
-import fluent.ui.system.icons.regular.ArrowWrap
+import fluent.ui.system.icons.regular.ArrowSyncCircle
 import fluent.ui.system.icons.regular.Delete
 import fluent.ui.system.icons.regular.ErrorCircle
 import fluent.ui.system.icons.regular.Image
@@ -37,18 +37,6 @@ fun CreationsScreen(
     rootNavController: NavHostController
 ) {
 
-    val snackbarHostState = remember { SnackbarHostState() }
-
-    LaunchedEffect(state.error) {
-        state.error?.let { error ->
-            snackbarHostState.showSnackbar(
-                message = error,
-                duration = SnackbarDuration.Short
-            )
-            onEvent(CreationsUiEvents.DismissError)
-        }
-    }
-
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -59,7 +47,7 @@ fun CreationsScreen(
                             onClick = { onEvent(CreationsUiEvents.RefreshCreations) }
                         ) {
                             Icon(
-                                imageVector = FluentIcons.Regular.ArrowWrap,
+                                imageVector = FluentIcons.Regular.ArrowSyncCircle,
                                 contentDescription = "Refresh"
                             )
                         }
@@ -67,7 +55,6 @@ fun CreationsScreen(
                 },
             )
         },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         Box(
             modifier = Modifier

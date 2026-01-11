@@ -131,13 +131,13 @@ fun AiGenerationScreen(
                 IconButton(
                     onClick = { onEvent(AiUiEvents.OnActionClick) },
                     modifier = Modifier
-                        .background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(50))
+                        .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(50))
                         .size(48.dp)
                 ) {
                     Icon(
                         imageVector = FluentIcons.Regular.Checkmark,
                         contentDescription = "Apply",
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                        tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
             } else {
