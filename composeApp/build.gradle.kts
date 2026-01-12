@@ -29,8 +29,7 @@ kotlin {
             baseName = "ComposeApp"
             isStatic = true
 
-            // Add the framework exports here
-            // Use linkerOpts to link against iOS system frameworks
+
             linkerOpts.addAll(listOf(
                 "-framework", "UIKit",
                 "-framework", "Foundation",
