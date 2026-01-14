@@ -15,7 +15,7 @@ PixelWalls brings a “Pixel-like” creative wallpaper experience to more devic
 ![PixelWalls Demo](https://bhaskar-dump-files.fra1.cdn.digitaloceanspaces.com/PixelWallsFramThumb.png)
 
 
-Watch the video here: **[Video Link](https://bhaskar-dump-files.fra1.cdn.digitaloceanspaces.com/PixelWalls_Demo_Video.mp4)**
+Watch the video here: **[Video Link](https://www.youtube.com/watch?v=DVE64bHyx7Y)**
 
 ---
 
