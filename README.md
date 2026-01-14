@@ -140,8 +140,8 @@ Desktop wallpaper setting required different approaches (AppleScript on macOS, J
 
 | Feature                  | Android | iOS                               | Windows | macOS | Linux       |
 |--------------------------|---------|-----------------------------------|---------|-------|-------------|
-| 3D Pop‑Out Editor        | ✅       | ✅                                 | ✅       | ✅     | ⚠️ Untested |
-| AI Wallpaper             | ✅       | ❌ (Hardware limitation)           | ✅       | ✅     | ⚠️ Untested |
+| 3D Pop‑Out Editor        | ✅       | ❌ (Hardware limitation)        | ✅       | ✅     | ⚠️ Untested |
+| AI Wallpaper             | ✅       | ✅                                          | ✅       | ✅     | ⚠️ Untested |
 | Direct wallpaper setting | ✅       | ⏸️ Manual (Photos + instructions) | ✅       | ✅     | ⚠️ Untested |
 | Creations gallery        | ✅       | ✅                                 | ✅       | ✅     | ⚠️ Untested |
 
